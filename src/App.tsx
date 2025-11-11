@@ -1,15 +1,16 @@
-import { useState } from 'react';
-import { Home, Calculator, Moon, Sun, LogOut } from 'lucide-react';
-import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import AuthPage from './components/AuthPage';
-import Dashboard from './components/Dashboard';
-import WhatIfCalculator from './components/WhatIfCalculator';
+import { Analytics } from "@vercel/analytics/react";
+import { useState } from "react";
+import { Home, Calculator, Moon, Sun, LogOut } from "lucide-react";
+import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import AuthPage from "./components/AuthPage";
+import Dashboard from "./components/Dashboard";
+import WhatIfCalculator from "./components/WhatIfCalculator";
 
-type Tab = 'dashboard' | 'calculator';
+type Tab = "dashboard" | "calculator";
 
 function AppContent() {
-  const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+  const [activeTab, setActiveTab] = useState<Tab>("dashboard");
   const [calculatorCGPA, setCalculatorCGPA] = useState(0);
   const [calculatorCredits, setCalculatorCredits] = useState(0);
   const { theme, toggleTheme } = useTheme();
@@ -40,7 +41,9 @@ function AppContent() {
               <div className="bg-gradient-to-br from-blue-500 to-green-500 p-2 rounded-lg">
                 <Home className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">GPA Tracker</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                GPA Tracker
+              </h1>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">
@@ -49,9 +52,9 @@ function AppContent() {
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
               >
-                {theme === 'light' ? (
+                {theme === "light" ? (
                   <Moon className="w-5 h-5 text-gray-700" />
                 ) : (
                   <Sun className="w-5 h-5 text-yellow-400" />
@@ -72,22 +75,22 @@ function AppContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-4 mb-6 border-b border-gray-200 dark:border-gray-700">
           <button
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => setActiveTab("dashboard")}
             className={`flex items-center gap-2 px-4 py-3 font-medium transition-all border-b-2 ${
-              activeTab === 'dashboard'
-                ? 'text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400'
-                : 'text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-white'
+              activeTab === "dashboard"
+                ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400"
+                : "text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-white"
             }`}
           >
             <Home className="w-5 h-5" />
             Dashboard
           </button>
           <button
-            onClick={() => setActiveTab('calculator')}
+            onClick={() => setActiveTab("calculator")}
             className={`flex items-center gap-2 px-4 py-3 font-medium transition-all border-b-2 ${
-              activeTab === 'calculator'
-                ? 'text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400'
-                : 'text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-white'
+              activeTab === "calculator"
+                ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400"
+                : "text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-white"
             }`}
           >
             <Calculator className="w-5 h-5" />
@@ -96,13 +99,18 @@ function AppContent() {
         </div>
 
         <div className="transition-all">
-          {activeTab === 'dashboard' ? (
-            <Dashboard onValuesChange={(cgpa, credits) => {
-              setCalculatorCGPA(cgpa);
-              setCalculatorCredits(credits);
-            }} />
+          {activeTab === "dashboard" ? (
+            <Dashboard
+              onValuesChange={(cgpa, credits) => {
+                setCalculatorCGPA(cgpa);
+                setCalculatorCredits(credits);
+              }}
+            />
           ) : (
-            <WhatIfCalculator initialCGPA={calculatorCGPA} initialCredits={calculatorCredits} />
+            <WhatIfCalculator
+              initialCGPA={calculatorCGPA}
+              initialCredits={calculatorCredits}
+            />
           )}
         </div>
       </div>
@@ -127,6 +135,7 @@ function App() {
       <AuthProvider>
         <AppContent />
       </AuthProvider>
+      <Analytics />
     </ThemeProvider>
   );
 }
