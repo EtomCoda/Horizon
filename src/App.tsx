@@ -7,6 +7,7 @@ import AuthPage from "./components/AuthPage";
 import Dashboard from "./components/Dashboard";
 import WhatIfCalculator from "./components/WhatIfCalculator";
 import Suggestions from "./components/Suggestions";
+import UpdatePasswordPage from "./components/UpdatePasswordPage";
 
 type Tab = "dashboard" | "calculator" | "suggestions";
 
@@ -17,6 +18,10 @@ function AppContent() {
   const { theme, toggleTheme } = useTheme();
   const { user, loading, signOut } = useAuth();
   const year = new Date().getFullYear();
+
+  if (window.location.pathname === '/update-password') {
+    return <UpdatePasswordPage />;
+  }
 
   if (loading) {
     return (
