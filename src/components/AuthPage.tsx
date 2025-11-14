@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { validatePassword } from '../utils/passwordValidation';
 
 const AuthPage = () => {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -12,6 +13,20 @@ const AuthPage = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, resetPassword } = useAuth();
+  const [passwordValidation, setPasswordValidation] = useState({
+    hasMinLength: false,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasNumber: false,
+    hasSymbol: false,
+  });
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    setPasswordValidation(validatePassword(newPassword));
+  };
 
   const handleSignInUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,14 +200,34 @@ const AuthPage = () => {
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={handlePasswordChange}
                     placeholder="••••••••"
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
+                {!isSignIn && (
+                  <div className="mt-4 text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                    <p>Password must contain:</p>
+                    <ul className="list-disc list-inside">
+                      <li className={passwordValidation.hasMinLength ? 'text-green-500' : ''}>At least 8 characters</li>
+                      <li className={passwordValidation.hasUppercase ? 'text-green-500' : ''}>An uppercase letter</li>
+                      <li className={passwordValidation.hasLowercase ? 'text-green-500' : ''}>A lowercase letter</li>
+                      <li className={passwordValidation.hasNumber ? 'text-green-500' : ''}>A number</li>
+                      <li className={passwordValidation.hasSymbol ? 'text-green-500' : ''}>A symbol</li>
+                    </ul>
+                  </div>
+                )}
               </div>
               {isSignIn && (
                 <div className="text-right mt-2">

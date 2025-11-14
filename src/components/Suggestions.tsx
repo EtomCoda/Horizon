@@ -15,7 +15,7 @@ const Suggestions = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitStatus(null);matchMedia,mm
+    setSubmitStatus(null);
 
     // TODO: Replace with your EmailJS credentials
     const serviceID = import.meta.env.VITE_SERVICE_ID||'YOUR_SERVICE_ID';
