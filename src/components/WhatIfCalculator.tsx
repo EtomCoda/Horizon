@@ -138,7 +138,7 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
                 className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
               >
                 <RotateCcw className="w-4 h-4" />
-                Reset
+                <span className="hidden sm:inline">Reset</span>
               </button>
             )}
             <button
@@ -146,7 +146,7 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md"
             >
               <Plus className="w-5 h-5" />
-              Add Course
+              <span className="hidden sm:inline">Add Course</span>
             </button>
           </div>
         </div>

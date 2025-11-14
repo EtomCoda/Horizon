@@ -171,7 +171,7 @@ const Dashboard = ({ onValuesChange }: DashboardProps) => {
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md"
         >
           <Plus className="w-5 h-5" />
-          Add Semester
+          <span className="hidden sm:inline">Add Semester</span>
         </button>
       </div>
 

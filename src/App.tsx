@@ -87,7 +87,7 @@ function AppContent() {
             }`}
           >
             <Home className="w-5 h-5" />
-            Dashboard
+            <span className="hidden sm:inline">Dashboard</span>
           </button>
           <button
             onClick={() => setActiveTab("calculator")}
@@ -98,7 +98,7 @@ function AppContent() {
             }`}
           >
             <Calculator className="w-5 h-5" />
-            What-If Calculator
+            <span className="hidden sm:inline">What-If Calculator</span>
           </button>
           <button
             onClick={() => setActiveTab("suggestions")}
@@ -109,7 +109,7 @@ function AppContent() {
             }`}
           >
             <MessageSquare className="w-5 h-5" />
-            Suggestions
+            <span className="hidden sm:inline">Suggestions</span>
           </button>
         </div>
 
@@ -133,11 +133,11 @@ function AppContent() {
       </div>
 
       <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12">
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <p className="text-center text-gray-600 dark:text-gray-400 text-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-gray-600 dark:text-gray-400 text-sm text-center sm:text-left">
             Horizon - Stay one step ahead.
           </p>
-          <p className="absolute right-4 sm:right-6 lg:right-8 top-0 bottom-0 flex items-center text-gray-600 dark:text-gray-400 text-sm">
+          <p className="text-gray-600 dark:text-gray-400 text-sm">
             © {year} EtomCoda
           </p>
         </div>
