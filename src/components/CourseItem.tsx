@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Course } from '../types';
 import { GRADE_POINTS } from '../utils/gradePoints';
 import EditCourseModal from './EditCourseModal';
+import ConfirmationModal from './ConfirmationModal';
 
 interface CourseItemProps {
   course: Course;
@@ -12,12 +13,26 @@ interface CourseItemProps {
 
 const CourseItem = ({ course, onDelete, onUpdate }: CourseItemProps) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   const gradePoint = GRADE_POINTS[course.grade];
 
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    onDelete(course.id);
+    setIsDeleteConfirmOpen(false);
+  };
+
   return (
     <>
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors gap-4">
+      <div 
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors gap-4 cursor-pointer"
+        onClick={() => setIsEditOpen(true)}
+      >
         <div className="flex-1">
           <h5 className="font-medium text-gray-900 dark:text-white">{course.name}</h5>
           <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-sm text-gray-600 dark:text-gray-400">
@@ -30,18 +45,7 @@ const CourseItem = ({ course, onDelete, onUpdate }: CourseItemProps) => {
         </div>
         <div className="flex items-center gap-2 self-end sm:self-center">
           <button
-            onClick={() => setIsEditOpen(true)}
-            className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            title="Edit course"
-          >
-            <Edit2 className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => {
-              if (confirm(`Delete ${course.name}?`)) {
-                onDelete(course.id);
-              }
-            }}
+            onClick={handleDeleteClick}
             className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
             title="Delete course"
           >
@@ -57,6 +61,14 @@ const CourseItem = ({ course, onDelete, onUpdate }: CourseItemProps) => {
           onSave={onUpdate}
         />
       )}
+
+      <ConfirmationModal
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+        onConfirm={confirmDelete}
+        title={`Delete Course: "${course.name}"`}
+        message="Are you sure you want to delete this course? This action cannot be undone."
+      />
     </>
   );
 };

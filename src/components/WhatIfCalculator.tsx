@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, Calculator, RotateCcw } from 'lucide-react';
+import { Plus, Trash2, Calculator, RotateCcw, Info } from 'lucide-react';
 import { HypotheticalCourse, Grade } from '../types';
 import { GRADES, GRADE_POINTS } from '../utils/gradePoints';
 import { calculateProjectedCGPA } from '../utils/gpaCalculations';
@@ -43,6 +43,7 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
   };
 
   const validateInputs = () => {
+    setErrors({});
     const newErrors: { cgpa?: string; credits?: string } = {};
     const cgpa = parseFloat(currentCGPA);
     const credits = parseFloat(currentCredits);
@@ -79,7 +80,18 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
             <Calculator className="w-6 h-6 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">What-If Calculator</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">What-If Calculator</h2>
+              <div className="relative group">
+                <Info className="w-5 h-5 text-gray-400 dark:text-gray-500 cursor-help" />
+                <div className="absolute bottom-full mb-2 w-72 bg-gray-900 text-white text-xs rounded py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                  This tool helps you predict your future CGPA. Enter your current CGPA and credits, then add hypothetical courses and grades to see the potential outcome.
+                  <svg className="absolute text-gray-900 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255">
+                    <polygon className="fill-current" points="0,0 127.5,127.5 255,0"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
               Predict your future CGPA by adding hypothetical courses
             </p>
@@ -234,7 +246,7 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
             <div className="bg-white dark:bg-gray-800/50 rounded-lg p-4">
               <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Projected CGPA</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {projectedCGPA.toFixed(1)}
+                {projectedCGPA.toFixed(3)}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {projectedCGPA > parseFloat(currentCGPA) ? '↑' : projectedCGPA < parseFloat(currentCGPA) ? '↓' : '='}{' '}
@@ -244,11 +256,11 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
             <div className="bg-white dark:bg-gray-800/50 rounded-lg p-4">
               <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Total Credits</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {totalCreditsAfter.toFixed(2)}
+                {totalCreditsAfter.toFixed(1)}
               </p>
               {newCredits > 0 && (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  +{newCredits.toFixed(2)} new credits
+                  +{newCredits.toFixed(1)} new credits
                 </p>
               )}
             </div>

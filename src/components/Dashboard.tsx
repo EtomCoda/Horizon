@@ -189,7 +189,7 @@ const Dashboard = ({ onValuesChange }: DashboardProps) => {
             setIsAddModalOpen(true);
             setAddError(null);
           }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors animate-pulse"
           >
             Add Your First Semester
           </button>

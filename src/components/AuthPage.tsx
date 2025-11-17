@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Check, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { validatePassword } from '../utils/passwordValidation';
 
@@ -122,7 +122,11 @@ const AuthPage = () => {
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+              <p className="text-red-700 dark:text-red-400 text-sm">
+                {error.toLowerCase().includes('password')
+                  ? 'Please ensure your password meets all the requirements below.'
+                  : error}
+              </p>
             </div>
           )}
           {message && (
@@ -218,13 +222,28 @@ const AuthPage = () => {
                 </div>
                 {!isSignIn && (
                   <div className="mt-4 text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                    <p>Password must contain:</p>
-                    <ul className="list-disc list-inside">
-                      <li className={passwordValidation.hasMinLength ? 'text-green-500' : ''}>At least 8 characters</li>
-                      <li className={passwordValidation.hasUppercase ? 'text-green-500' : ''}>An uppercase letter</li>
-                      <li className={passwordValidation.hasLowercase ? 'text-green-500' : ''}>A lowercase letter</li>
-                      <li className={passwordValidation.hasNumber ? 'text-green-500' : ''}>A number</li>
-                      <li className={passwordValidation.hasSymbol ? 'text-green-500' : ''}>A symbol</li>
+                    <p className="font-medium">Password must contain:</p>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+                      <li className={`flex items-center gap-2 ${passwordValidation.hasMinLength ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                        {passwordValidation.hasMinLength ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                        At least 8 characters
+                      </li>
+                      <li className={`flex items-center gap-2 ${passwordValidation.hasUppercase ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                        {passwordValidation.hasUppercase ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                        An uppercase letter
+                      </li>
+                      <li className={`flex items-center gap-2 ${passwordValidation.hasLowercase ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                        {passwordValidation.hasLowercase ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                        A lowercase letter
+                      </li>
+                      <li className={`flex items-center gap-2 ${passwordValidation.hasNumber ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                        {passwordValidation.hasNumber ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                        A number
+                      </li>
+                      <li className={`flex items-center gap-2 ${passwordValidation.hasSymbol ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                        {passwordValidation.hasSymbol ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                        A symbol
+                      </li>
                     </ul>
                   </div>
                 )}
