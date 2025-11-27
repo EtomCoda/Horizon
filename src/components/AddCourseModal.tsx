@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Grade, Course } from '../types';
-import { GRADES } from '../utils/gradePoints';
+import { GRADING_SCALES } from '../utils/gradePoints';
+import { useSettings } from '../contexts/SettingsContext';
 
 interface AddCourseModalProps {
   onClose: () => void;
@@ -9,6 +10,7 @@ interface AddCourseModalProps {
 }
 
 const AddCourseModal = ({ onClose, onAdd }: AddCourseModalProps) => {
+  const { gradingScale } = useSettings();
   const [name, setName] = useState('');
   const [creditHours, setCreditHours] = useState('');
   const [grade, setGrade] = useState<Grade>('A');
@@ -66,6 +68,7 @@ const AddCourseModal = ({ onClose, onAdd }: AddCourseModalProps) => {
                 setErrors({ ...errors, name: undefined });
               }}
               placeholder="e.g., Introduction to Artificial Intelligence"
+              maxLength={50}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
             />
             {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
@@ -100,9 +103,9 @@ const AddCourseModal = ({ onClose, onAdd }: AddCourseModalProps) => {
               onChange={(e) => setGrade(e.target.value as Grade)}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
             >
-              {GRADES.map((g) => (
-                <option key={g} value={g}>
-                  {g}
+              {GRADING_SCALES[gradingScale].map((g) => (
+                <option key={g.grade} value={g.grade}>
+                  {g.grade} ({g.range})
                 </option>
               ))}
             </select>

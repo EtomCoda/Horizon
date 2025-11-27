@@ -1,11 +1,10 @@
 import { Course, Semester } from '../types';
-import { GRADE_POINTS } from './gradePoints';
 
-export const calculateSemesterGPA = (courses: Course[]): number => {
+export const calculateSemesterGPA = (courses: Course[], gradePoints: Record<string, number>): number => {
   if (courses.length === 0) return 0;
 
   const totalPoints = courses.reduce((sum, course) => {
-    return sum + (GRADE_POINTS[course.grade] * course.creditHours);
+    return sum + ((gradePoints[course.grade] || 0) * course.creditHours);
   }, 0);
 
   const totalCredits = courses.reduce((sum, course) => sum + course.creditHours, 0);
@@ -15,11 +14,11 @@ export const calculateSemesterGPA = (courses: Course[]): number => {
   return totalPoints / totalCredits;
 };
 
-export const calculateCGPA = (semesters: Semester[]): number => {
+export const calculateCGPA = (semesters: Semester[], gradePoints: Record<string, number>): number => {
   if (semesters.length === 0) return 0;
 
   const allCourses = semesters.flatMap(semester => semester.courses);
-  return calculateSemesterGPA(allCourses);
+  return calculateSemesterGPA(allCourses, gradePoints);
 };
 
 export const getTotalCredits = (semesters: Semester[]): number => {
@@ -31,13 +30,14 @@ export const getTotalCredits = (semesters: Semester[]): number => {
 export const calculateProjectedCGPA = (
   currentCGPA: number,
   currentCredits: number,
-  newCourses: Course[]
+  newCourses: Course[],
+  gradePoints: Record<string, number>
 ): number => {
   if (newCourses.length === 0) return currentCGPA;
 
   const currentPoints = currentCGPA * currentCredits;
   const newPoints = newCourses.reduce((sum, course) => {
-    return sum + (GRADE_POINTS[course.grade] * course.creditHours);
+    return sum + ((gradePoints[course.grade] || 0) * course.creditHours);
   }, 0);
   const newCredits = newCourses.reduce((sum, course) => sum + course.creditHours, 0);
 

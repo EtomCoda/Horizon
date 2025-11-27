@@ -59,9 +59,9 @@ function AppContent() {
                 title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
               >
                 {theme === "light" ? (
-                  <Moon className="w-5 h-5 text-gray-700" />
+                  <Moon className="w-5 h-5 text-blue-800" />
                 ) : (
-                  <Sun className="w-5 h-5 text-yellow-400" />
+                  <Sun className="w-5 h-5 text-green-200" />
                 )}
               </button>
               <button
@@ -146,11 +146,15 @@ function AppContent() {
   );
 }
 
+import { SettingsProvider } from "./contexts/SettingsContext";
+
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppContent />
+        <SettingsProvider>
+          <AppContent />
+        </SettingsProvider>
       </AuthProvider>
       <Analytics />
     </ThemeProvider>

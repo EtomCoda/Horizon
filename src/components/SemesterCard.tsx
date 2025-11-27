@@ -3,6 +3,8 @@ import { Edit2, Trash2, ChevronDown, ChevronUp, Plus, BookOpen } from 'lucide-re
 import { Semester, Course } from '../types';
 import { calculateSemesterGPA } from '../utils/gpaCalculations';
 import { courseService } from '../services/database';
+import { useSettings } from '../contexts/SettingsContext';
+import { getGradePoints } from '../utils/gradePoints';
 import CourseItem from './CourseItem';
 import AddCourseModal from './AddCourseModal';
 import EditSemesterModal from './EditSemesterModal';
@@ -15,13 +17,15 @@ interface SemesterCardProps {
 }
 
 const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
+  const { gradingScale } = useSettings();
   const [isExpanded, setIsExpanded] = useState(true);
   const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [courses, setCourses] = useState(semester.courses);
 
-  const gpa = calculateSemesterGPA(courses);
+  const gradePoints = getGradePoints(gradingScale);
+  const gpa = calculateSemesterGPA(courses, gradePoints);
   const totalCredits = courses.reduce((sum, course) => sum + course.creditHours, 0);
 
   const handleAddCourse = async (course: Omit<Course, 'id'>) => {
@@ -32,7 +36,7 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
       const updatedSemester = {
         ...semester,
         courses: updatedCourses,
-        gpa: calculateSemesterGPA(updatedCourses),
+        gpa: calculateSemesterGPA(updatedCourses, gradePoints),
       };
       onUpdate(updatedSemester);
       setIsAddCourseOpen(false);
@@ -49,7 +53,7 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
       const updatedSemester = {
         ...semester,
         courses: updatedCourses,
-        gpa: calculateSemesterGPA(updatedCourses),
+        gpa: calculateSemesterGPA(updatedCourses, gradePoints),
       };
       onUpdate(updatedSemester);
     } catch (error) {
@@ -67,7 +71,7 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
       const updatedSemester = {
         ...semester,
         courses: updatedCourses,
-        gpa: calculateSemesterGPA(updatedCourses),
+        gpa: calculateSemesterGPA(updatedCourses, gradePoints),
       };
       onUpdate(updatedSemester);
     } catch (error) {

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Plus, Trash2, Calculator, RotateCcw, Info } from 'lucide-react';
 import { HypotheticalCourse, Grade } from '../types';
-import { GRADES, GRADE_POINTS } from '../utils/gradePoints';
+import { GRADING_SCALES, getGradePoints } from '../utils/gradePoints';
 import { calculateProjectedCGPA } from '../utils/gpaCalculations';
+import { useSettings } from '../contexts/SettingsContext';
 
 interface WhatIfCalculatorProps {
   initialCGPA?: number;
@@ -10,10 +11,13 @@ interface WhatIfCalculatorProps {
 }
 
 const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalculatorProps) => {
+  const { gradingScale } = useSettings();
   const [currentCGPA, setCurrentCGPA] = useState(initialCGPA > 0 ? initialCGPA.toFixed(2) : '');
   const [currentCredits, setCurrentCredits] = useState(initialCredits > 0 ? initialCredits.toString() : '');
   const [courses, setCourses] = useState<HypotheticalCourse[]>([]);
   const [errors, setErrors] = useState<{ cgpa?: string; credits?: string }>({});
+
+  const gradePoints = getGradePoints(gradingScale);
 
   const addCourse = () => {
     const newCourse: HypotheticalCourse = {
@@ -65,7 +69,8 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
       ? calculateProjectedCGPA(
           parseFloat(currentCGPA),
           parseFloat(currentCredits),
-          courses
+          courses,
+          gradePoints
         )
       : null;
 
@@ -219,9 +224,9 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
                       onChange={(e) => updateCourse(course.id, 'grade', e.target.value as Grade)}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm transition-all"
                     >
-                      {GRADES.map((g) => (
-                        <option key={g} value={g}>
-                          {g} ({GRADE_POINTS[g].toFixed(2)})
+                      {GRADING_SCALES[gradingScale].map((g) => (
+                        <option key={g.grade} value={g.grade}>
+                          {g.grade} ({g.range}) - {g.points.toFixed(2)} pts
                         </option>
                       ))}
                     </select>
@@ -232,6 +237,7 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
           </div>
         )}
       </div>
+
 
       {projectedCGPA !== null && (
         <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-gray-800 dark:to-gray-700 rounded-lg shadow-md p-6 border-2 border-blue-200 dark:border-gray-600">

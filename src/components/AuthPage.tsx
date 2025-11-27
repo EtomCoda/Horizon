@@ -28,10 +28,30 @@ const AuthPage = () => {
     setPasswordValidation(validatePassword(newPassword));
   };
 
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSignInUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address.');
+      setLoading(false);
+      return;
+    }
+
+    if (!isSignIn) {
+      const isValidPassword = Object.values(passwordValidation).every(Boolean);
+      if (!isValidPassword) {
+        setError('Please ensure your password meets all requirements.');
+        setLoading(false);
+        return;
+      }
+    }
 
     try {
       if (isSignIn) {
@@ -40,6 +60,7 @@ const AuthPage = () => {
         await signUp(email, password, username);
       }
     } catch (err) {
+      console.error('Auth error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -51,6 +72,12 @@ const AuthPage = () => {
     setError('');
     setMessage('');
     setLoading(true);
+
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address.');
+      setLoading(false);
+      return;
+    }
 
     try {
       await resetPassword(email);

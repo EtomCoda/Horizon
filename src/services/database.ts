@@ -162,3 +162,48 @@ export const goalService = {
     if (error) throw error;
   },
 };
+
+export const profileService = {
+  async get(userId: string) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('grading_scale')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async update(userId: string, updates: { grading_scale?: string }) {
+    // First try to update an existing row
+    const { data, error: updateError } = await supabase
+      .from('profiles')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId)
+      .select();
+
+    if (!updateError && data && data.length > 0) {
+      return;
+    }
+
+    // If update failed (likely no row), try upsert
+    // Note: This might fail if RLS prevents INSERT.
+    const { error: upsertError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: userId,
+        ...updates,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (upsertError) {
+      console.error('Profile update failed:', upsertError);
+      // We don't throw here to prevent blocking the UI
+      // The local state will still update
+    }
+  },
+};

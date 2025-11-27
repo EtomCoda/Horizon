@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Plus, Target, TrendingUp, BookOpen } from 'lucide-react';
+import { Plus, Target, TrendingUp, BookOpen, Settings, Info } from 'lucide-react';
 import { Semester, GoalData } from '../types';
 import { calculateCGPA, getTotalCredits } from '../utils/gpaCalculations';
 import { useAuth } from '../contexts/AuthContext';
+import { useSettings } from '../contexts/SettingsContext';
+import { getGradePoints, GradingScaleType, GRADING_SCALES } from '../utils/gradePoints';
 import { semesterService, courseService, goalService } from '../services/database';
 import SemesterCard from './SemesterCard';
 import GoalCard from './GoalCard';
@@ -14,6 +16,7 @@ interface DashboardProps {
 
 const Dashboard = ({ onValuesChange }: DashboardProps) => {
   const { user } = useAuth();
+  const { gradingScale, setGradingScale } = useSettings();
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [goal, setGoal] = useState<GoalData | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -42,7 +45,8 @@ const Dashboard = ({ onValuesChange }: DashboardProps) => {
     loadData();
   }, [user?.id]);
 
-  const cgpa = calculateCGPA(semesters);
+  const gradePoints = getGradePoints(gradingScale);
+  const cgpa = calculateCGPA(semesters, gradePoints);
   const totalCredits = getTotalCredits(semesters);
 
   useEffect(() => {
@@ -109,6 +113,57 @@ const Dashboard = ({ onValuesChange }: DashboardProps) => {
 
   return (
     <div className="space-y-6">
+      {/* Settings Section */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
+              <Settings className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Grading System</h3>
+          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div className="flex-1">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              Select your preferred grading scale. This will update all GPA calculations across the application.
+            </p>
+            <div className="relative group inline-block">
+              <div className="flex items-center gap-2 cursor-help text-blue-600 dark:text-blue-400 text-sm font-medium">
+                <Info className="w-4 h-4" />
+                <span>View Scale Details</span>
+              </div>
+              <div className="absolute left-0 bottom-full mb-2 w-64 bg-gray-900 text-white text-xs rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 shadow-xl">
+                <p className="font-bold mb-2 border-b border-gray-700 pb-1">
+                  {gradingScale.replace(/_/g, ' ')}
+                </p>
+                <div className="space-y-1">
+                  {GRADING_SCALES[gradingScale].map((g) => (
+                    <div key={g.grade} className="flex justify-between">
+                      <span>{g.grade} ({g.range})</span>
+                      <span className="font-mono">{g.points} pts</span>
+                    </div>
+                  ))}
+                </div>
+                <svg className="absolute text-gray-900 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255">
+                  <polygon className="fill-current" points="0,0 127.5,127.5 255,0"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <select
+            value={gradingScale}
+            onChange={(e) => setGradingScale(e.target.value as GradingScaleType)}
+            className="block w-full sm:w-auto rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
+          >
+            <option value="DEFAULT">Default 5.0 Scale</option>
+            <option value="DEFAULT_WITH_E">Default 5.0 Scale with E</option>
+            <option value="NUC_REFORM_4_0">NUC 4.0 Reform Scale </option>
+            <option value="STRICT_PRIVATE_5_0">Strict Private Uni Scale </option>
+          </select>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
@@ -243,3 +298,4 @@ const Dashboard = ({ onValuesChange }: DashboardProps) => {
 };
 
 export default Dashboard;
+

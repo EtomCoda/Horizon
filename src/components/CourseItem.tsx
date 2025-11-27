@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { Course } from '../types';
-import { GRADE_POINTS } from '../utils/gradePoints';
+import { getGradePoints } from '../utils/gradePoints';
+import { useSettings } from '../contexts/SettingsContext';
 import EditCourseModal from './EditCourseModal';
 import ConfirmationModal from './ConfirmationModal';
 
@@ -12,10 +13,12 @@ interface CourseItemProps {
 }
 
 const CourseItem = ({ course, onDelete, onUpdate }: CourseItemProps) => {
+  const { gradingScale } = useSettings();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
-  const gradePoint = GRADE_POINTS[course.grade];
+  const gradePoints = getGradePoints(gradingScale);
+  const gradePoint = gradePoints[course.grade] || 0;
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
