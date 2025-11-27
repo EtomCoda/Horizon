@@ -61,7 +61,7 @@ Horizon is a powerful, modern, and secure web application designed to help stude
 - **Content Security Policy**: Restricts resource loading to trusted sources.
 - **Database Security**: User data is isolated using Supabase Row Level Security (RLS) policies.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
