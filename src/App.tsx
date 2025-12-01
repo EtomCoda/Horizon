@@ -1,5 +1,5 @@
-import { Analytics } from "@vercel/analytics/react";
-import { useState } from "react";
+import { Analytics, track } from "@vercel/analytics/react";
+import { useState, useEffect } from "react";
 import { Home, Calculator, Moon, Sun, LogOut, MessageSquare } from "lucide-react";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -18,6 +18,10 @@ function AppContent() {
   const { theme, toggleTheme } = useTheme();
   const { user, loading, signOut } = useAuth();
   const year = new Date().getFullYear();
+
+  useEffect(() => {
+    track('Tab Change', { tab: activeTab });
+  }, [activeTab]);
 
   if (window.location.pathname === '/update-password') {
     return <UpdatePasswordPage />;
@@ -156,7 +160,12 @@ function App() {
           <AppContent />
         </SettingsProvider>
       </AuthProvider>
-      <Analytics />
+      <Analytics beforeSend={(event) => {
+        if (event.url.includes('dashboard') || event.url.includes('calculator') || event.url.includes('suggestions')) {
+          return event;
+        }
+        return event;
+      }} />
     </ThemeProvider>
   );
 }
