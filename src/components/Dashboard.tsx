@@ -28,11 +28,21 @@ const Dashboard = ({ onValuesChange }: DashboardProps) => {
       if (!user) return;
       try {
         setLoading(true);
-        const semestedData = await semesterService.getAll(user.id);
-        for (const semester of semestedData) {
-          semester.courses = await courseService.getBySemesterId(semester.id);
+        // Fetch all semesters
+        const semestersData = await semesterService.getAll(user.id);
+        
+        if (semestersData.length > 0) {
+          // Fetch all courses for these semesters in one query
+          const semesterIds = semestersData.map(s => s.id);
+          const allCourses = await courseService.getAllBySemesterIds(semesterIds);
+          
+          // Map courses to their respective semesters
+          semestersData.forEach(semester => {
+            semester.courses = allCourses.filter(c => c.semesterId === semester.id);
+          });
         }
-        setSemesters(semestedData);
+        
+        setSemesters(semestersData);
         const goalData = await goalService.get(user.id);
         setGoal(goalData);
       } catch (error) {

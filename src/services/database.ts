@@ -84,6 +84,27 @@ export const courseService = {
     }));
   },
 
+  async getAllBySemesterIds(semesterIds: string[]): Promise<Course[]> {
+    if (semesterIds.length === 0) return [];
+    
+    const { data, error } = await supabase
+      .from('courses')
+      .select('*')
+      .in('semester_id', semesterIds)
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    
+    // Return courses with their semester_id attached so we can group them later
+    return (data || []).map(course => ({
+      id: course.id,
+      name: course.name,
+      creditHours: course.credit_hours,
+      grade: course.grade,
+      semesterId: course.semester_id // We'll need to add this optional property to the Course type or handle it locally
+    }));
+  },
+
   async create(semesterId: string, course: Omit<Course, 'id'>): Promise<Course> {
     const { data, error } = await supabase
       .from('courses')

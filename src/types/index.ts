@@ -5,6 +5,7 @@ export interface Course {
   name: string;
   creditHours: number;
   grade: Grade;
+  semesterId?: string;
 }
 
 export interface Semester {
