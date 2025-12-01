@@ -121,7 +121,7 @@ const AuthPage = () => {
           Horizon
         </h1>
         <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 mt-4 animate-fade-in-up">
-          Track your academic progress. Predict your performance. <p>Stay one step ahead.</p>
+          Track your academic progress. Predict your performance. <span className="block sm:inline">Stay one step ahead.</span>
         </p>
       </div>
 

@@ -47,7 +47,7 @@ const AddSemesterModal = ({ onClose, onAdd, submissionError }: AddSemesterModalP
                 setName(e.target.value);
                 setError('');
               }}
-              placeholder="e.g., Fall 2024, Spring 2025"
+              placeholder="e.g., First Semester 2024, Second Semester 2025"
               maxLength={30}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
             />

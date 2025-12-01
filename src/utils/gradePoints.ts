@@ -57,3 +57,8 @@ export const getGrades = (scale: GradingScaleType): Grade[] => {
 // Default export for backward compatibility (pointing to DEFAULT as it was the original)
 export const GRADE_POINTS = getGradePoints('DEFAULT');
 export const GRADES = getGrades('DEFAULT');
+
+export const getMaxCGPA = (scale: GradingScaleType): number => {
+  const points = GRADING_SCALES[scale].map(g => g.points);
+  return Math.max(...points);
+};

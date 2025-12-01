@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Trash2, Calculator, RotateCcw, Info } from 'lucide-react';
 import { HypotheticalCourse, Grade } from '../types';
 import { GRADING_SCALES, getGradePoints } from '../utils/gradePoints';
 import { calculateProjectedCGPA } from '../utils/gpaCalculations';
 import { useSettings } from '../contexts/SettingsContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface WhatIfCalculatorProps {
   initialCGPA?: number;
@@ -11,13 +12,46 @@ interface WhatIfCalculatorProps {
 }
 
 const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalculatorProps) => {
+  const { user } = useAuth();
   const { gradingScale } = useSettings();
   const [currentCGPA, setCurrentCGPA] = useState(initialCGPA > 0 ? initialCGPA.toFixed(2) : '');
   const [currentCredits, setCurrentCredits] = useState(initialCredits > 0 ? initialCredits.toString() : '');
   const [courses, setCourses] = useState<HypotheticalCourse[]>([]);
   const [errors, setErrors] = useState<{ cgpa?: string; credits?: string }>({});
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const gradePoints = getGradePoints(gradingScale);
+
+  // Load saved data on mount
+  useEffect(() => {
+    if (!user) return;
+    const savedData = localStorage.getItem(`whatif_data_${user.id}`);
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        // Only restore if we have valid data, otherwise keep initial props
+        if (parsed.currentCGPA || parsed.currentCredits || parsed.courses?.length > 0) {
+          setCurrentCGPA(parsed.currentCGPA);
+          setCurrentCredits(parsed.currentCredits);
+          setCourses(parsed.courses || []);
+        }
+      } catch (e) {
+        console.error('Failed to parse saved what-if data', e);
+      }
+    }
+    setIsLoaded(true);
+  }, [user]);
+
+  // Save data on change
+  useEffect(() => {
+    if (!user || !isLoaded) return;
+    const dataToSave = {
+      currentCGPA,
+      currentCredits,
+      courses
+    };
+    localStorage.setItem(`whatif_data_${user.id}`, JSON.stringify(dataToSave));
+  }, [currentCGPA, currentCredits, courses, user, isLoaded]);
 
   const addCourse = () => {
     const newCourse: HypotheticalCourse = {
@@ -44,6 +78,9 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
     setCurrentCredits('');
     setCourses([]);
     setErrors({});
+    if (user) {
+      localStorage.removeItem(`whatif_data_${user.id}`);
+    }
   };
 
   const validateInputs = () => {
@@ -69,12 +106,15 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
       ? calculateProjectedCGPA(
           parseFloat(currentCGPA),
           parseFloat(currentCredits),
-          courses,
+          courses.map(c => ({
+            ...c,
+            creditHours: typeof c.creditHours === 'string' ? parseFloat(c.creditHours) || 0 : c.creditHours
+          })),
           gradePoints
         )
       : null;
 
-  const newCredits = courses.reduce((sum, c) => sum + c.creditHours, 0);
+  const newCredits = courses.reduce((sum, c) => sum + (typeof c.creditHours === 'string' ? parseFloat(c.creditHours) || 0 : c.creditHours), 0);
   const totalCreditsAfter = currentCredits ? parseFloat(currentCredits) + newCredits : newCredits;
 
   return (
@@ -209,7 +249,7 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
                     <input
                       type="number"
                       value={course.creditHours}
-                      onChange={(e) => updateCourse(course.id, 'creditHours', parseFloat(e.target.value) || 0)}
+                      onChange={(e) => updateCourse(course.id, 'creditHours', e.target.value)}
                       min="0"
                       step="0.5"
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm transition-all"

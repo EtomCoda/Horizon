@@ -21,7 +21,7 @@ export interface GoalData {
 export interface HypotheticalCourse {
   id: string;
   name: string;
-  creditHours: number;
+  creditHours: number | string;
   grade: Grade;
 }
 

@@ -4,7 +4,7 @@ import { Semester, GoalData } from '../types';
 import { calculateCGPA, getTotalCredits } from '../utils/gpaCalculations';
 import { useAuth } from '../contexts/AuthContext';
 import { useSettings } from '../contexts/SettingsContext';
-import { getGradePoints, GradingScaleType, GRADING_SCALES } from '../utils/gradePoints';
+import { getGradePoints, GradingScaleType, GRADING_SCALES, getMaxCGPA } from '../utils/gradePoints';
 import { semesterService, courseService, goalService } from '../services/database';
 import SemesterCard from './SemesterCard';
 import GoalCard from './GoalCard';
@@ -212,6 +212,7 @@ const Dashboard = ({ onValuesChange }: DashboardProps) => {
         <GoalCard
           currentCGPA={cgpa}
           targetCGPA={goal.targetCGPA}
+          maxCGPA={getMaxCGPA(gradingScale)}
           onUpdateGoal={handleSaveGoal}
         />
       )}

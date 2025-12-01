@@ -1,29 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Target, TrendingUp, Info } from 'lucide-react';
 
 interface GoalCardProps {
   currentCGPA: number;
   targetCGPA: number;
-  onUpdateGoal: (targetCGPA: number) => void;
+  maxCGPA?: number;
+  onUpdateGoal: (targetCGPA: number) => Promise<void>;
 }
 
-const GoalCard = ({ currentCGPA, targetCGPA, onUpdateGoal }: GoalCardProps) => {
+const GoalCard = ({ currentCGPA, targetCGPA, maxCGPA = 5.0, onUpdateGoal }: GoalCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTarget, setNewTarget] = useState(targetCGPA.toString());
   const [error, setError] = useState('');
+  
+  useEffect(() => {
+    setNewTarget(targetCGPA.toString());
+  }, [targetCGPA]);
 
   const difference = targetCGPA - currentCGPA;
   const progress = targetCGPA > 0 ? Math.min((currentCGPA / targetCGPA) * 100, 100) : 0;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const target = parseFloat(newTarget);
-    if (isNaN(target) || target < 0 || target > 5.0) {
-      setError('Please enter a valid CGPA between 0.0 and 5.0');
+    if (isNaN(target) || target < 0 || target > maxCGPA) {
+      setError(`Please enter a valid CGPA between 0.0 and ${maxCGPA.toFixed(1)}`);
       return;
     }
-    onUpdateGoal(target);
-    setIsEditing(false);
-    setError('');
+    
+    try {
+      await onUpdateGoal(target);
+      setIsEditing(false);
+      setError('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to update goal');
+    }
   };
 
   return (
@@ -65,7 +75,7 @@ const GoalCard = ({ currentCGPA, targetCGPA, onUpdateGoal }: GoalCardProps) => {
                 setError('');
               }}
               min="0"
-              max="5.0"
+              max={maxCGPA}
               step="0.01"
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all mb-2"
               autoFocus
