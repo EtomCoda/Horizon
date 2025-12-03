@@ -9,6 +9,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  passwordRecoveryMode: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,12 +17,19 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [passwordRecoveryMode, setPasswordRecoveryMode] = useState(false);
 
   useEffect(() => {
     let mounted = true;
 
     const initializeAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      
+      // Check for recovery in URL
+      if (window.location.hash && window.location.hash.includes('type=recovery')) {
+        setPasswordRecoveryMode(true);
+      }
+
       if (mounted) {
         setUser(session?.user ?? null);
         setLoading(false);
@@ -35,10 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (event === 'PASSWORD_RECOVERY') {
-          // Force redirect to update password page
-          window.history.replaceState(null, '', '/update-password');
-          // Force a re-evaluation of the route by ensuring we are not loading
-          setLoading(false); 
+          setPasswordRecoveryMode(true);
         }
       }
     });
@@ -80,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut, resetPassword }}>
+    <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut, resetPassword, passwordRecoveryMode }}>
       {children}
     </AuthContext.Provider>
   );
