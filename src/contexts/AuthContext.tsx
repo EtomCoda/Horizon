@@ -33,6 +33,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (mounted) {
         setUser(session?.user ?? null);
+        
+        if (event === 'PASSWORD_RECOVERY') {
+          // Force redirect to update password page
+          window.history.replaceState(null, '', '/update-password');
+          // Force a re-evaluation of the route by ensuring we are not loading
+          setLoading(false); 
+        }
       }
     });
 
