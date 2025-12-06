@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Lock, Eye, EyeOff } from 'lucide-react';
+import { Lock, Eye, EyeOff, Check, X } from 'lucide-react';
 import { validatePassword } from '../utils/passwordValidation';
 
 const UpdatePasswordPage = () => {
@@ -37,6 +37,13 @@ const UpdatePasswordPage = () => {
 
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
+      setLoading(false);
+      return;
+    }
+
+    const isValidPassword = Object.values(passwordValidation).every(Boolean);
+    if (!isValidPassword) {
+      setError('Please ensure your password meets all requirements.');
       setLoading(false);
       return;
     }
@@ -127,13 +134,28 @@ const UpdatePasswordPage = () => {
               </div>
             </div>
             <div className="mt-4 text-xs text-gray-600 dark:text-gray-400 space-y-1">
-              <p>Password must contain:</p>
-              <ul className="list-disc list-inside">
-                <li className={passwordValidation.hasMinLength ? 'text-green-500' : ''}>At least 8 characters</li>
-                <li className={passwordValidation.hasUppercase ? 'text-green-500' : ''}>An uppercase letter</li>
-                <li className={passwordValidation.hasLowercase ? 'text-green-500' : ''}>A lowercase letter</li>
-                <li className={passwordValidation.hasNumber ? 'text-green-500' : ''}>A number</li>
-                <li className={passwordValidation.hasSymbol ? 'text-green-500' : ''}>A symbol</li>
+              <p className="font-medium">Password must contain:</p>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+                <li className={`flex items-center gap-2 ${passwordValidation.hasMinLength ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                  {passwordValidation.hasMinLength ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                  At least 8 characters
+                </li>
+                <li className={`flex items-center gap-2 ${passwordValidation.hasUppercase ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                  {passwordValidation.hasUppercase ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                  An uppercase letter
+                </li>
+                <li className={`flex items-center gap-2 ${passwordValidation.hasLowercase ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                  {passwordValidation.hasLowercase ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                  A lowercase letter
+                </li>
+                <li className={`flex items-center gap-2 ${passwordValidation.hasNumber ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                  {passwordValidation.hasNumber ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                  A number
+                </li>
+                <li className={`flex items-center gap-2 ${passwordValidation.hasSymbol ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                  {passwordValidation.hasSymbol ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                  A symbol
+                </li>
               </ul>
             </div>
             <button

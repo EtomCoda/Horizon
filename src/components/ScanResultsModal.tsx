@@ -116,7 +116,7 @@ const ScanResultsModal = ({ onClose, onScanComplete }: ScanResultsModalProps) =>
                 <FileImage className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
               <p className="text-gray-900 dark:text-white font-medium mb-2">
-                Click to upload screenshot
+                Click to upload a screenshot of your result
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 PNG, JPG up to 4MB
