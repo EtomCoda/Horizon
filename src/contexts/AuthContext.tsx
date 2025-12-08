@@ -81,6 +81,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email,
         redirectTo: `${window.location.origin}/update-password`,
       },
+      headers: {
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      },
     });
     if (error) throw error;
   };
