@@ -85,7 +85,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
       },
     });
-    if (error) throw error;
+    
+    if (error) {
+      // Attempt to extract the error message from the response body
+      if ('context' in error && error.context instanceof Response) {
+        try {
+          const errorBody = await error.context.json();
+          if (errorBody && errorBody.error) {
+            throw new Error(errorBody.error);
+          }
+        } catch (e) {
+          // Failed to parse JSON, throw original error
+        }
+      }
+      throw error;
+    }
   };
 
   return (
