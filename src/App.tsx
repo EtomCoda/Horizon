@@ -18,7 +18,7 @@ type Tab = "dashboard" | "calculator" | "suggestions";
 
 function AppContent() {
   const [activeTab ] = useState<Tab>("dashboard");
-  const { user, loading: authLoading, passwordRecoveryMode } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
 
   useEffect(() => {
