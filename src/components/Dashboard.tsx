@@ -1,158 +1,45 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, Target, TrendingUp, BookOpen, Settings, Info, Upload } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { Semester, GoalData } from '../types';
 import { calculateCGPA, getTotalCredits } from '../utils/gpaCalculations';
-import { useAuth } from '../contexts/AuthContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { getGradePoints, GradingScaleType, GRADING_SCALES, getMaxCGPA } from '../utils/gradePoints';
-import { semesterService, courseService, goalService } from '../services/database';
+import { useData } from '../contexts/DataContext';
 import SemesterCard from './SemesterCard';
 import GoalCard from './GoalCard';
 import AddSemesterModal from './AddSemesterModal';
 import ScanResultsModal from './ScanResultsModal';
 import { Course } from '../types';
 
-interface DashboardProps {
-  onValuesChange?: (cgpa: number, credits: number) => void;
-}
-
-const Dashboard = ({ onValuesChange }: DashboardProps) => {
-  const { user } = useAuth();
+const Dashboard = () => {
   const { gradingScale, setGradingScale } = useSettings();
-  const [semesters, setSemesters] = useState<Semester[]>([]);
-  const [goal, setGoal] = useState<GoalData | null>(null);
+  const {
+    semesters,
+    goal,
+    loading,
+    addSemester,
+    deleteSemester,
+    updateSemester,
+    saveGoal,
+  } = useData();
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [scannedCourses, setScannedCourses] = useState<Partial<Course>[]>([]);
   const [addError, setAddError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadData = async () => {
-      if (!user) return;
-      try {
-        setLoading(true);
-        // Fetch all semesters
-        const semestersData = await semesterService.getAll(user.id);
-        
-        if (semestersData.length > 0) {
-          // Fetch all courses for these semesters in one query
-          const semesterIds = semestersData.map(s => s.id);
-          const allCourses = await courseService.getAllBySemesterIds(semesterIds);
-          
-          // Map courses to their respective semesters
-          semestersData.forEach(semester => {
-            semester.courses = allCourses.filter(c => c.semesterId === semester.id);
-          });
-        }
-        
-        setSemesters(semestersData);
-        const goalData = await goalService.get(user.id);
-        setGoal(goalData);
-      } catch (error) {
-        if (import.meta.env.DEV) {
-          console.error('Error loading data:', error);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, [user?.id]);
 
   const gradePoints = getGradePoints(gradingScale);
   const cgpa = calculateCGPA(semesters, gradePoints);
   const totalCredits = getTotalCredits(semesters);
 
-  useEffect(() => {
-    if (onValuesChange) {
-      onValuesChange(cgpa, totalCredits);
-    }
-  }, [cgpa, totalCredits, onValuesChange]);
-
   const handleAddSemester = async (name: string) => {
-    if (!user) return;
     try {
       setAddError(null);
-      const newSemester = await semesterService.create(user.id, name);
-      
-      // If we have scanned courses, add them to the new semester
-      if (scannedCourses.length > 0) {
-        for (const course of scannedCourses) {
-          if (course.name && course.creditHours && course.grade) {
-            await courseService.create(newSemester.id, {
-              name: course.name,
-              creditHours: course.creditHours,
-              grade: course.grade,
-            });
-          }
-        }
-        // Refresh to get the new courses
-        const updatedCourses = await courseService.getBySemesterId(newSemester.id);
-        newSemester.courses = updatedCourses;
-      }
-
-      setSemesters([...semesters, newSemester]);
+      await addSemester(name, scannedCourses);
       setIsAddModalOpen(false);
-      
-      if (scannedCourses.length > 0) {
-        toast.success(`Successfully imported ${scannedCourses.length} courses!`);
-      } else {
-        toast.success('Semester added successfully');
-      }
-      
       setScannedCourses([]); // Clear scanned courses
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Error adding semester:', error);
-      }
-      toast.error(error instanceof Error ? error.message : 'Failed to add semester');
+      // Error is already toasted in context
       setAddError(error instanceof Error ? error.message : 'An unknown error occurred.');
-    }
-  };
-
-  const handleDeleteSemester = async (id: string) => {
-    try {
-      await semesterService.delete(id);
-      setSemesters(semesters.filter(s => s.id !== id));
-      toast.success('Semester deleted successfully');
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Error deleting semester:', error);
-      }
-      toast.error('Failed to delete semester');
-    }
-  };
-
-  const handleUpdateSemester = async (updatedSemester: Semester) => {
-    const oldSemesters = semesters;
-    setSemesters(semesters.map(s => s.id === updatedSemester.id ? updatedSemester : s));
-
-    try {
-      await semesterService.update(updatedSemester.id, updatedSemester.name);
-      toast.success('Semester updated successfully');
-    } catch (error) {
-      toast.error(`Could not update semester name: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      if (import.meta.env.DEV) {
-        console.error('Error updating semester:', error);
-      }
-      setSemesters(oldSemesters);
-    }
-  };
-
-  const handleSaveGoal = async (targetCGPA: number) => {
-    if (!user) return;
-    try {
-      await goalService.upsert(user.id, targetCGPA);
-      setGoal({ targetCGPA });
-      toast.success('Goal updated successfully');
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Error saving goal:', error);
-      }
-      toast.error('Failed to save goal');
     }
   };
 
@@ -269,7 +156,7 @@ const Dashboard = ({ onValuesChange }: DashboardProps) => {
           currentCGPA={cgpa}
           targetCGPA={goal.targetCGPA}
           maxCGPA={getMaxCGPA(gradingScale)}
-          onUpdateGoal={handleSaveGoal}
+          onUpdateGoal={saveGoal}
         />
       )}
 
@@ -319,8 +206,8 @@ const Dashboard = ({ onValuesChange }: DashboardProps) => {
             <SemesterCard
               key={semester.id}
               semester={semester}
-              onDelete={handleDeleteSemester}
-              onUpdate={handleUpdateSemester}
+              onDelete={deleteSemester}
+              onUpdate={updateSemester}
             />
           ))}
         </div>
@@ -340,7 +227,7 @@ const Dashboard = ({ onValuesChange }: DashboardProps) => {
                 Track your progress by setting a target CGPA goal
               </p>
               <button
-                onClick={() => handleSaveGoal(3.5)}
+                onClick={() => saveGoal(3.5)}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
               >
                 Set Goal

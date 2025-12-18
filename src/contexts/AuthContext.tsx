@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
@@ -66,12 +66,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) throw error;
+    const { error } = await supabase.functions.invoke('send-reset-email', {
+      body: {
+        email,
+        redirectTo: `${window.location.origin}/update-password`,
+      },
+      headers: {
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      },
+    });
+    
+    if (error) {
+      // Attempt to extract the error message from the response body
+      if ('context' in error && error.context instanceof Response) {
+        try {
+          const errorBody = await error.context.json();
+          if (errorBody && errorBody.error) {
+            throw new Error(errorBody.error);
+          }
+        } catch (e) {
+          // Failed to parse JSON, throw original error
+        }
+      }
+      throw error;
+    }
   };
 
+  const value = useMemo(() => ({
+    user,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    resetPassword,
+    passwordRecoveryMode,
+  }), [user, loading, passwordRecoveryMode]);
+
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut, resetPassword }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

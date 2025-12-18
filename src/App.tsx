@@ -4,6 +4,10 @@ import { Toaster } from "react-hot-toast";
 import { Home, Calculator, Moon, Sun, LogOut, MessageSquare } from "lucide-react";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { DataProvider, useData } from "./contexts/DataContext";
+import { calculateCGPA, getTotalCredits } from "./utils/gpaCalculations";
+import { useSettings } from "./contexts/SettingsContext";
+import { getGradePoints } from "./utils/gradePoints";
 import AuthPage from "./components/AuthPage";
 import Dashboard from "./components/Dashboard";
 import WhatIfCalculator from "./components/WhatIfCalculator";
@@ -13,12 +17,9 @@ import UpdatePasswordPage from "./components/UpdatePasswordPage";
 type Tab = "dashboard" | "calculator" | "suggestions";
 
 function AppContent() {
-  const [activeTab, setActiveTab] = useState<Tab>("dashboard");
-  const [calculatorCGPA, setCalculatorCGPA] = useState(0);
-  const [calculatorCredits, setCalculatorCredits] = useState(0);
-  const { theme, toggleTheme } = useTheme();
-  const { user, loading, signOut } = useAuth();
-  const year = new Date().getFullYear();
+  const [activeTab ] = useState<Tab>("dashboard");
+  const { user, loading: authLoading, passwordRecoveryMode } = useAuth();
+
 
   useEffect(() => {
     track('Tab Change', { tab: activeTab });
@@ -28,7 +29,7 @@ function AppContent() {
     return <UpdatePasswordPage />;
   }
 
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
@@ -44,6 +45,25 @@ function AppContent() {
   }
 
   return (
+    <DataProvider>
+      <AppView />
+    </DataProvider>
+  );
+}
+
+function AppView() {
+  const [activeTab, setActiveTab] = useState<Tab>("dashboard");
+  const { theme, toggleTheme } = useTheme();
+  const { user, signOut } = useAuth();
+  const { semesters } = useData();
+  const { gradingScale } = useSettings();
+  const year = new Date().getFullYear();
+
+  const gradePoints = getGradePoints(gradingScale);
+  const cgpa = calculateCGPA(semesters, gradePoints);
+  const totalCredits = getTotalCredits(semesters);
+
+  return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors overflow-x-hidden">
       <nav className="bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -56,7 +76,7 @@ function AppContent() {
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">
-                Hey, {user.user_metadata.username}!
+                Hey, {user!.user_metadata.username}!
               </span>
               <button
                 onClick={toggleTheme}
@@ -120,16 +140,11 @@ function AppContent() {
 
         <div className="transition-all">
           {activeTab === "dashboard" ? (
-            <Dashboard
-              onValuesChange={(cgpa, credits) => {
-                setCalculatorCGPA(cgpa);
-                setCalculatorCredits(credits);
-              }}
-            />
+            <Dashboard />
           ) : activeTab === "calculator" ? (
             <WhatIfCalculator
-              initialCGPA={calculatorCGPA}
-              initialCredits={calculatorCredits}
+              initialCGPA={cgpa}
+              initialCredits={totalCredits}
             />
           ) : (
             <Suggestions />
