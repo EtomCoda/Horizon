@@ -99,8 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signIn,
     signOut,
     resetPassword,
-    passwordRecoveryMode,
-  }), [user, loading, passwordRecoveryMode]);
+  }), [user, loading,]);
 
   return (
     <AuthContext.Provider value={value}>
