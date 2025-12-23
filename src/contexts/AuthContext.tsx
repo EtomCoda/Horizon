@@ -69,7 +69,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { error } = await supabase.functions.invoke('send-reset-email', {
       body: {
         email,
-        redirectTo: `${window.location.origin}/update-password`,
+        redirectTo: `${
+          import.meta.env.VITE_SITE_URL 
+            ? (import.meta.env.VITE_SITE_URL.startsWith('http') ? import.meta.env.VITE_SITE_URL : `https://${import.meta.env.VITE_SITE_URL}`)
+            : window.location.origin
+        }/update-password`,
       },
       headers: {
         Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,

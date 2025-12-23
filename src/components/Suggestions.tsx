@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {  useAuth } from "../contexts/AuthContext";
 
-import emailjs from '@emailjs/browser';
+import { supabase } from "../lib/supabase";
 
 const Suggestions = () => {
   const [subject, setSubject] = useState('');
@@ -12,36 +12,35 @@ const Suggestions = () => {
   const username = user ? user.user_metadata.username : ' ';
   const email = user ? user.email : ' ';
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus(null);
 
-    // TODO: Replace with your EmailJS credentials
-    const serviceID = import.meta.env.VITE_SERVICE_ID||'YOUR_SERVICE_ID';
-    const templateID = import.meta.env.VITE_TEMPLATE_ID||'YOUR_TEMPLATE_ID';
-    const publicKey = import.meta.env.VITE_PUBLIC_KEY||'YOUR_PUBLIC_KEY';
-    
-    
-    const templateParams = {
-      subject: subject,
-      suggestion: suggestion,
-      name: username,
-      email: email,
-    };
+    try {
+        const { error } = await supabase.functions.invoke('send-suggestion-ack', {
+            body: {
+                email: email,
+                name: username,
+                subject: subject,
+                suggestion: suggestion,
+            },
+        });
 
-    emailjs.send(serviceID, templateID, templateParams, publicKey)
-      .then(() => {
+        if (error) {
+            console.error('Error invoking edge function:', error);
+            throw new Error(error.message || 'Failed to submit suggestion');
+        }
+
         setSubmitStatus('success');
         setSubject('');
         setSuggestion('');
-      })
-      .catch(() => {
+    } catch (err) {
+        console.error('Submission error:', err);
         setSubmitStatus('error');
-      })
-      .finally(() => {
+    } finally {
         setIsSubmitting(false);
-      });
+    }
   };
 
   return (
