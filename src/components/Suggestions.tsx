@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {  useAuth } from "../contexts/AuthContext";
 
 import { supabase } from "../lib/supabase";
@@ -11,6 +11,18 @@ const Suggestions = () => {
   const { user } = useAuth();
   const username = user ? user.user_metadata.username : ' ';
   const email = user ? user.email : ' ';
+
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (cooldown > 0) {
+      interval = setInterval(() => {
+        setCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [cooldown]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +47,7 @@ const Suggestions = () => {
         setSubmitStatus('success');
         setSubject('');
         setSuggestion('');
+        setCooldown(60); // Start 60s cooldown
     } catch (err) {
         console.error('Submission error:', err);
         setSubmitStatus('error');
@@ -71,10 +84,10 @@ const Suggestions = () => {
 
         <button
           type="submit"
-          disabled={isSubmitting}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 rounded-lg transition-colors mt-6"
+          disabled={isSubmitting || cooldown > 0}
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-medium py-3 rounded-lg transition-colors mt-6"
         >
-          {isSubmitting ? 'Submitting...' : 'Submit Suggestion'}
+          {isSubmitting ? 'Submitting...' : cooldown > 0 ? `Submit again in ${cooldown}s` : 'Submit Suggestion'}
         </button>
       </form>
 

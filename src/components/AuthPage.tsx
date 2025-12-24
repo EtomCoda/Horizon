@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Mail, Lock, User, Eye, EyeOff, Check, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { validatePassword } from '../utils/passwordValidation';
@@ -69,6 +69,18 @@ const AuthPage = () => {
     }
   };
 
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (cooldown > 0) {
+      interval = setInterval(() => {
+        setCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [cooldown]);
+
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -84,6 +96,7 @@ const AuthPage = () => {
     try {
       await resetPassword(email);
       setMessage('Password reset email sent. Please check your inbox.');
+      setCooldown(60); // Start 60s cooldown
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -96,6 +109,7 @@ const AuthPage = () => {
     setIsForgotPassword(false);
     setError('');
     setMessage('');
+    setCooldown(0); // Reset cooldown on view switch? Optional.
   };
 
   const showForgotPassword = () => {
@@ -184,10 +198,10 @@ const AuthPage = () => {
               </div>
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 rounded-lg transition-colors mt-6"
+                disabled={loading || cooldown > 0}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-medium py-2 rounded-lg transition-colors mt-6"
               >
-                {loading ? 'Sending...' : 'Send Reset Link'}
+                {loading ? 'Sending...' : cooldown > 0 ? `Resend in ${cooldown}s` : 'Send Reset Link'}
               </button>
             </form>
           ) : (
