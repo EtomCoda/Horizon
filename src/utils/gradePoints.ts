@@ -1,6 +1,6 @@
 import { Grade } from '../types';
 
-export type GradingScaleType = 'DEFAULT' |'DEFAULT_WITH_E' | 'NUC_REFORM_4_0' | 'STRICT_PRIVATE_5_0';
+export type GradingScaleType = 'DEFAULT' |'DEFAULT_WITH_E' | 'NUC_REFORM_4_0' | 'STRICT_PRIVATE_5_0' | 'US_STANDARD_4_0';
 
 export interface GradeDefinition {
   grade: Grade;
@@ -38,6 +38,19 @@ export const GRADING_SCALES: Record<GradingScaleType, GradeDefinition[]> = {
     { grade: 'D', points: 2.0, range: '45-49' },
     { grade: 'E', points: 1.0, range: '40-44' },
     { grade: 'F', points: 0.0, range: '0-39' },
+  ],
+  US_STANDARD_4_0: [
+    { grade: 'A', points: 4.0, range: '93-100' },
+    { grade: 'A-', points: 3.7, range: '90-92' },
+    { grade: 'B+', points: 3.3, range: '87-89' },
+    { grade: 'B', points: 3.0, range: '83-86' },
+    { grade: 'B-', points: 2.7, range: '80-82' },
+    { grade: 'C+', points: 2.3, range: '77-79' },
+    { grade: 'C', points: 2.0, range: '73-76' },
+    { grade: 'C-', points: 1.7, range: '70-72' },
+    { grade: 'D+', points: 1.3, range: '67-69' },
+    { grade: 'D', points: 1.0, range: '60-66' },
+    { grade: 'F', points: 0.0, range: '0-59' },
   ],
 };
 

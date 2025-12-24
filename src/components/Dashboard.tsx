@@ -103,6 +103,7 @@ const Dashboard = () => {
             <option value="DEFAULT_WITH_E">Default 5.0 Scale with E</option>
             <option value="NUC_REFORM_4_0">NUC 4.0 Reform Scale </option>
             <option value="STRICT_PRIVATE_5_0">Strict Private Uni Scale </option>
+            <option value="US_STANDARD_4_0">US / International Standard 4.0</option>
           </select>
         </div>
       </div>
