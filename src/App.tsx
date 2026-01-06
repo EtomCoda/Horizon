@@ -1,4 +1,5 @@
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -39,6 +40,7 @@ function App() {
         </AuthProvider>
       </BrowserRouter>
       <Analytics />
+      <SpeedInsights/>
       <Toaster position="top-right" />
     </ThemeProvider>
   );
