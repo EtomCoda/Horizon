@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Lock, User, Eye, EyeOff, Check, X } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Check, X, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { validatePassword } from '../utils/passwordValidation';
 
@@ -320,6 +320,13 @@ const AuthPage = () => {
               >
                 {loading ? 'Loading...' : isSignIn ? 'Sign In' : 'Sign Up'}
               </button>
+              
+              {!isSignIn && (
+                <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                  <ShieldCheck className="w-3 h-3 text-green-500" />
+                  <p>Your data is private and encrypted.</p>
+                </div>
+              )}
             </form>
           )}
 
