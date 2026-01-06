@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Upload, X, Loader2, FileImage, AlertCircle } from 'lucide-react';
+import { Upload, X, Loader2, FileImage, AlertCircle, Shield } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Course } from '../types';
 
@@ -173,6 +173,11 @@ const ScanResultsModal = ({ onClose, onScanComplete }: ScanResultsModalProps) =>
               )}
             </button>
           </div>
+
+          <p className="text-xs text-center text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1.5">
+            <Shield className="w-3 h-3" />
+            <b>We do not view or store your uploaded data.</b>
+          </p>
         </div>
       </div>
     </div>
