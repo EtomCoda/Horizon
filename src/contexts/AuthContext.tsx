@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { usePostHog } from 'posthog-js/react';
 
 interface AuthContextType {
   user: User | null;
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const posthog = usePostHog();
 
   useEffect(() => {
     let mounted = true;
@@ -26,6 +28,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (mounted) {
         setUser(session?.user ?? null);
         setLoading(false);
+        if (session?.user) {
+            posthog?.identify(session.user.id, {
+                email: session.user.email,
+                username: session.user.user_metadata?.username
+            });
+        }
       }
     };
 
@@ -34,6 +42,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (mounted) {
         setUser(session?.user ?? null);
+        if (session?.user) {
+            posthog?.identify(session.user.id, {
+                email: session.user.email,
+                username: session.user.user_metadata?.username
+            });
+        } else if (event === 'SIGNED_OUT') {
+            posthog?.reset();
+        }
       }
     });
 

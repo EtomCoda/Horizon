@@ -18,10 +18,13 @@ import LandingPage from "./components/LandingPage";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsOfService from "./components/TermsOfService";
 
+import PageViewTracker from "./components/PageViewTracker";
+
 function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
+        <PageViewTracker />
         <AuthProvider>
           <SettingsProvider>
             <Routes>
