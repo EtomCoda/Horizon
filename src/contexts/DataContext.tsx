@@ -99,7 +99,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       }
       setSemesters(prev => [...prev, newSemester]);
       if (scannedCourses.length > 0) {
-        toast.success(`Successfully imported ${scannedCourses.length} courses!`);
+        toast.success(`Successfully imported ${scannedCourses.length} courses!`, { duration: 2000 });
       } else {
         toast.success('Semester added successfully');
       }
