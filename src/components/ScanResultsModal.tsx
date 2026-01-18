@@ -3,6 +3,7 @@ import { Upload, X, Loader2, FileImage, AlertCircle, Shield } from 'lucide-react
 import { supabase } from '../lib/supabase';
 import { Course } from '../types';
 import { useData } from '../contexts/DataContext';
+import InsufficientFundsModal from './InsufficientFundsModal';
 
 interface ScanResultsModalProps {
   onClose: () => void;
@@ -14,6 +15,7 @@ const ScanResultsModal = ({ onClose, onScanComplete }: ScanResultsModalProps) =>
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showInsufficientFunds, setShowInsufficientFunds] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { credits, deductCredits } = useData();
@@ -40,7 +42,7 @@ const ScanResultsModal = ({ onClose, onScanComplete }: ScanResultsModalProps) =>
     if (!selectedImage) return;
 
     if (credits < 15) {
-      setError(`Insufficient credits. You have ${credits} credits, but this action requires 15.`);
+      setShowInsufficientFunds(true);
       return;
     }
 
@@ -101,6 +103,16 @@ const ScanResultsModal = ({ onClose, onScanComplete }: ScanResultsModalProps) =>
     }
     onClose();
   };
+
+  if (showInsufficientFunds) {
+      return (
+          <InsufficientFundsModal 
+              onClose={() => setShowInsufficientFunds(false)}
+              neededCredits={15}
+              currentCredits={credits}
+          />
+      );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={handleClose}>

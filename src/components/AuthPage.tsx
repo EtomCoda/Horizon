@@ -76,7 +76,11 @@ const AuthPage = () => {
       if (import.meta.env.DEV) {
         console.error('Auth error:', err);
       }
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      let errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      if (errorMessage === 'Failed to fetch') {
+          errorMessage = 'No internet connection. Please check your network.';
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -111,7 +115,11 @@ const AuthPage = () => {
       setMessage('Password reset email sent. Please check your inbox.');
       setCooldown(60); // Start 60s cooldown
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      let errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      if (errorMessage === 'Failed to fetch') {
+          errorMessage = 'No internet connection. Please check your network.';
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

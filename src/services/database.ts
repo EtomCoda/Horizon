@@ -262,4 +262,15 @@ export const profileService = {
 
     if (error) throw error;
   },
+
+  async getReferralStats(): Promise<{ count: number; cap_reached: boolean }> {
+      const { data, error } = await supabase
+        .rpc('get_referral_stats');
+
+      if (error) {
+          console.error("Referral stats error:", error);
+          return { count: 0, cap_reached: false };
+      }
+      return data as { count: number; cap_reached: boolean };
+  },
 };

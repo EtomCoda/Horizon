@@ -7,6 +7,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useData } from '../contexts/DataContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { getGradePoints, getMaxCGPA } from '../utils/gradePoints';
+import InsufficientFundsModal from './InsufficientFundsModal';
 
 const Analytics = () => {
   const { semesters, analyticsExpiresAt, unlockAnalytics, credits } = useData();
@@ -15,6 +16,7 @@ const Analytics = () => {
 
   const navigate = useNavigate();
   const [isUnlocking, setIsUnlocking] = useState(false);
+  const [showInsufficientFunds, setShowInsufficientFunds] = useState(false);
 
   // Flatten all courses into a single array
   const allCourses = useMemo(() => 
@@ -118,7 +120,7 @@ const Analytics = () => {
 
   const handleUnlock = async () => {
       if (credits < 30) {
-          toast.error(`Insufficient credits. You need 30 credits but have ${credits}.`);
+          setShowInsufficientFunds(true);
           return;
       }
       setIsUnlocking(true);
@@ -131,6 +133,16 @@ const Analytics = () => {
           setIsUnlocking(false);
       }
   };
+
+  if (showInsufficientFunds) {
+      return (
+          <InsufficientFundsModal 
+              onClose={() => setShowInsufficientFunds(false)}
+              neededCredits={30}
+              currentCredits={credits}
+          />
+      );
+  }
 
   if (!isAnalyticsUnlocked) {
       return (

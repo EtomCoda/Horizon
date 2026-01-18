@@ -18,6 +18,7 @@ interface DataContextType {
   analyticsExpiresAt: string | null;
   deductCredits: (amount: number) => Promise<void>;
   unlockAnalytics: () => Promise<void>;
+  referralCount: number;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -30,7 +31,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [credits, setCredits] = useState(0);
   const [analyticsExpiresAt, setAnalyticsExpiresAt] = useState<string | null>(null);
   const [referralCode, setReferralCode] = useState<string | null>(null);
-  const [referredBy, setReferredBy] = useState<string | null>(null); // Added
+  const [referredBy, setReferredBy] = useState<string | null>(null);
+  const [referralCount, setReferralCount] = useState(0);
 
   // ... (imports are fine)
 
@@ -39,10 +41,11 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       if (!user) return;
       try {
         setLoading(true);
-        const [semestersData, goalData, profileData] = await Promise.all([
+        const [semestersData, goalData, profileData, referralData] = await Promise.all([
           semesterService.getAll(user.id),
           goalService.get(user.id),
-          profileService.get(user.id)
+          profileService.get(user.id),
+          profileService.getReferralStats() // Add this service call
         ]);
 
         if (semestersData.length > 0) {
@@ -59,7 +62,11 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
            setCredits(profileData.credits_balance ?? 0);
            setAnalyticsExpiresAt(profileData.analytics_expires_at ?? null);
            setReferralCode(profileData.referral_code ?? null);
-           setReferredBy(profileData.referred_by ?? null); // Added
+           setReferredBy(profileData.referred_by ?? null);
+        }
+
+        if (referralData) {
+            setReferralCount(referralData.count || 0);
         }
 
       } catch (error) {
@@ -168,6 +175,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     analyticsExpiresAt,
     deductCredits,
     unlockAnalytics,
+    referralCount,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
