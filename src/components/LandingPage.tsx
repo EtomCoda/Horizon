@@ -1,10 +1,11 @@
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight, BarChart2, Calculator, TrendingUp, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const LandingPage = () => {
   const { user } = useAuth();
+  const location = useLocation();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 overflow-x-hidden transition-colors">
@@ -19,7 +20,7 @@ const LandingPage = () => {
               </span>
             </div>
             <Link
-              to={user ? "/dashboard" : "/auth"}
+              to={user ? "/dashboard" : "/auth" + location.search}
               className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full font-medium transition-all transform hover:scale-105 shadow-md flex items-center gap-2 text-sm"
             >
               {user ? (
@@ -46,7 +47,7 @@ const LandingPage = () => {
           </p>
           <div className="flex justify-center gap-4 animate-fade-in-up delay-200">
             <Link
-              to="/auth"
+              to={"/auth" + location.search}
               className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-4 rounded-full font-bold text-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-2"
             >
               Get Started for Free <ArrowRight className="w-5 h-5" />

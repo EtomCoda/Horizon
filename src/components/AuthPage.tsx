@@ -10,6 +10,11 @@ const AuthPage = () => {
   const [searchParams] = useSearchParams();
   const from = location.state?.from?.pathname || "/dashboard";
   const [isSignIn, setIsSignIn] = useState(true);
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) localStorage.setItem('referralCode', ref);
+  }, [searchParams]);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -68,8 +73,9 @@ const AuthPage = () => {
       if (isSignIn) {
         await signIn(email, password);
       } else {
-        const referralCode = searchParams.get('ref') || undefined;
+        const referralCode = searchParams.get('ref') || localStorage.getItem('referralCode') || undefined;
         await signUp(email, password, username, referralCode);
+        localStorage.removeItem('referralCode');
       }
       navigate(from, { replace: true });
     } catch (err) {
