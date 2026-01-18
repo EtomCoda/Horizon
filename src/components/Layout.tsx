@@ -7,6 +7,7 @@ import { getMotivationalGreeting } from '../utils/greetings';
 import { useState } from 'react';
 import InviteModal from './InviteModal';
 import SettingsModal from './SettingsModal';
+import InsufficientFundsModal from './InsufficientFundsModal';
 
 export default function Layout() {
   const { theme, toggleTheme } = useTheme();
@@ -16,6 +17,7 @@ export default function Layout() {
   const location = useLocation();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
 
   const { credits } = useData();
 
@@ -37,10 +39,14 @@ export default function Layout() {
               </h1>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-full text-sm font-medium">
+              <button
+                onClick={() => setIsPaymentOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-full text-sm font-medium hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors"
+                title="Buy Credits"
+              >
                 <Coins className="w-4 h-4" />
                 <span>{credits}</span>
-              </div>
+              </button>
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
@@ -160,6 +166,13 @@ export default function Layout() {
               )}
               {isSettingsOpen && (
                 <SettingsModal onClose={() => setIsSettingsOpen(false)} />
+              )}
+              {isPaymentOpen && (
+                <InsufficientFundsModal 
+                  onClose={() => setIsPaymentOpen(false)} 
+                  neededCredits={0}
+                  currentCredits={credits}
+                />
               )}
             </div>
           );

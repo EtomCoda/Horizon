@@ -1,16 +1,37 @@
 import { Rocket, BookOpen, Crown, X } from 'lucide-react';
+import { PaystackButton } from 'react-paystack';
+import { paymentService } from '../services/database';
+import { useAuth } from '../contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 interface PaymentStoreProps {
     onClose?: () => void;
 }
 
 const PaymentStore = ({ onClose }: PaymentStoreProps) => {
+    const { user } = useAuth();
     
-    // Placeholder function for Paystack integration
-    const handlePurchase = (plan: string, amount: number) => {
-        // TODO: Integrate Paystack
-        console.log(`User wants to buy ${plan} for ${amount}`);
-        alert("Payment Gateway Integration Coming Soon!");
+    const handlePaymentSuccess = (reference: any, plan: string, amount: number) => {
+            const loadingToast = toast.loading("Verifying payment...");
+            paymentService.verifyTransaction(reference.reference, plan, amount)
+                .then((data) => {
+                    toast.dismiss(loadingToast);
+                    if (data.success) {
+                        toast.success(`Success! ${data.creditsAdded} Credits added.`);
+                        if (onClose) onClose();
+                        setTimeout(() => window.location.reload(), 1500); 
+                    }
+                })
+                .catch((err) => {
+                    toast.dismiss(loadingToast);
+                    console.error("Verification Error:", err);
+                    toast.error(err.message || "Payment verification failed.");
+                });
+    };
+
+    const baseConfig = {
+        email: user?.email || '',
+        publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || '',
     };
 
     return (
@@ -50,12 +71,14 @@ const PaymentStore = ({ onClose }: PaymentStoreProps) => {
                          <span className="text-gray-400 text-sm ml-2">Credits</span>
                      </div>
 
-                     <button 
-                        onClick={() => handlePurchase('Quick Pass', 500)}
+                     <PaystackButton 
+                        {...baseConfig}
+                        amount={500 * 100} // 500 Naira
+                        text="Buy Now"
+                        onSuccess={(ref: any) => handlePaymentSuccess(ref, 'Quick Pass', 500)}
+                        onClose={() => console.log('Payment closed')}
                         className="w-full py-3 rounded-xl bg-blue-600 text-white font-bold shadow-md hover:bg-blue-700 transition-colors mt-auto"
-                     >
-                        Buy Now
-                     </button>
+                     />
                 </div>
 
                 {/* Card B: The Dean's List (Best Value - Center/Gold) */}
@@ -80,12 +103,14 @@ const PaymentStore = ({ onClose }: PaymentStoreProps) => {
                          <div className="text-xs text-yellow-600 font-medium mt-1">Saves 50%</div>
                      </div>
 
-                     <button 
-                         onClick={() => handlePurchase("Dean's List", 2000)}
+                     <PaystackButton 
+                         {...baseConfig}
+                         amount={2000 * 100} // 2000 Naira
+                         text="Claim Offer"
+                         onSuccess={(ref: any) => handlePaymentSuccess(ref, "Dean's List", 2000)}
+                         onClose={() => console.log('Payment closed')}
                          className="w-full py-3 rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white font-bold shadow-md transition-all transform hover:scale-105 mt-auto"
-                     >
-                        Claim Offer
-                     </button>
+                     />
                 </div>
 
                 {/* Card C: The Scholar Bundle (Standard - Blue Outline) */}
@@ -110,12 +135,14 @@ const PaymentStore = ({ onClose }: PaymentStoreProps) => {
                          <div className="text-xs text-green-600 font-medium mt-1">+20 Free Credits</div>
                      </div>
 
-                     <button 
-                         onClick={() => handlePurchase('Scholar Bundle', 1000)}
+                     <PaystackButton 
+                         {...baseConfig}
+                         amount={1000 * 100} // 1000 Naira
+                         text="Get Bundle"
+                         onSuccess={(ref: any) => handlePaymentSuccess(ref, 'Scholar Bundle', 1000)}
+                         onClose={() => console.log('Payment closed')}
                          className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all mt-auto"
-                     >
-                        Get Bundle
-                     </button>
+                     />
                 </div>
             </div>
             
