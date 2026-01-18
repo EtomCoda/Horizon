@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff, Check, X, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { validatePassword } from '../utils/passwordValidation';
@@ -31,6 +31,7 @@ const AuthPage = () => {
     hasSymbol: false,
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -64,6 +65,12 @@ const AuthPage = () => {
       const isValidPassword = Object.values(passwordValidation).every(Boolean);
       if (!isValidPassword) {
         setError('Please ensure your password meets all requirements.');
+        setLoading(false);
+        return;
+      }
+      
+      if (!agreedToTerms) {
+        setError('You must agree to the Terms of Service and Privacy Policy to continue.');
         setLoading(false);
         return;
       }
@@ -294,23 +301,23 @@ const AuthPage = () => {
                   <div className="mt-4 text-xs text-gray-600 dark:text-gray-400 space-y-1">
                     <p className="font-medium">Password must contain:</p>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-                      <li className={`flex items-center gap-2 ${passwordValidation.hasMinLength ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                      <li className={`flex items-center gap-2 ${passwordValidation.hasMinLength ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
                         {passwordValidation.hasMinLength ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                         At least 8 characters
                       </li>
-                      <li className={`flex items-center gap-2 ${passwordValidation.hasUppercase ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                      <li className={`flex items-center gap-2 ${passwordValidation.hasUppercase ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
                         {passwordValidation.hasUppercase ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                         An uppercase letter
                       </li>
-                      <li className={`flex items-center gap-2 ${passwordValidation.hasLowercase ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                      <li className={`flex items-center gap-2 ${passwordValidation.hasLowercase ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
                         {passwordValidation.hasLowercase ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                         A lowercase letter
                       </li>
-                      <li className={`flex items-center gap-2 ${passwordValidation.hasNumber ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                      <li className={`flex items-center gap-2 ${passwordValidation.hasNumber ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
                         {passwordValidation.hasNumber ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                         A number
                       </li>
-                      <li className={`flex items-center gap-2 ${passwordValidation.hasSymbol ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                      <li className={`flex items-center gap-2 ${passwordValidation.hasSymbol ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
                         {passwordValidation.hasSymbol ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                         A symbol
                       </li>
@@ -327,6 +334,34 @@ const AuthPage = () => {
                   >
                     Forgot Password?
                   </button>
+                </div>
+              )}
+
+              {!isSignIn && (
+                <div className="flex items-start gap-2 mt-4">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="terms"
+                      aria-describedby="terms-description"
+                      name="terms"
+                      type="checkbox"
+                      checked={agreedToTerms}
+                      onChange={(e) => setAgreedToTerms(e.target.checked)}
+                      className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 ring-offset-gray-800"
+                    />
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <label htmlFor="terms" className="font-medium">
+                      I agree to the{" "}
+                      <Link to="/terms" target="_blank" className="text-blue-600 hover:underline dark:text-blue-500">
+                        Terms of Service
+                      </Link>{" "}
+                      and{" "}
+                      <Link to="/privacy" target="_blank" className="text-blue-600 hover:underline dark:text-blue-500">
+                        Privacy Policy
+                      </Link>
+                    </label>
+                  </div>
                 </div>
               )}
               <button

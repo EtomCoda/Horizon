@@ -1,12 +1,12 @@
-
-import { Outlet, NavLink, useLocation, Navigate, Link, useNavigate } from 'react-router-dom';
-import { Home, Calculator, Moon, Sun, LogOut, BarChart2, MessageSquare, Coins, Users } from 'lucide-react';
+import { Outlet, NavLink, useLocation, Navigate, Link } from 'react-router-dom';
+import { Home, Calculator, Moon, Sun, LogOut, BarChart2, Coins, Users, Settings } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { getMotivationalGreeting } from '../utils/greetings';
 import { useState } from 'react';
 import InviteModal from './InviteModal';
+import SettingsModal from './SettingsModal';
 
 export default function Layout() {
   const { theme, toggleTheme } = useTheme();
@@ -14,8 +14,8 @@ export default function Layout() {
   const [greeting] = useState(getMotivationalGreeting());
   const year = new Date().getFullYear();
   const location = useLocation();
-  const navigate = useNavigate();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const { credits } = useData();
 
@@ -41,13 +41,6 @@ export default function Layout() {
                 <Coins className="w-4 h-4" />
                 <span>{credits}</span>
               </div>
-              <Link
-                to="/feedback"
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-600 dark:text-gray-400"
-                title="Send Feedback"
-              >
-                <MessageSquare className="w-5 h-5" />
-              </Link>
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
@@ -58,6 +51,13 @@ export default function Layout() {
                 ) : (
                   <Sun className="w-5 h-5 text-green-200" />
                 )}
+              </button>
+              <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-600 dark:text-gray-400"
+                title="Settings"
+              >
+                <Settings className="w-5 h-5" />
               </button>
               <button
                 onClick={() => signOut()}
@@ -136,27 +136,20 @@ export default function Layout() {
                   <p className="text-gray-600 dark:text-gray-400 text-sm text-center sm:text-left">
                     Horizon - Stay one step ahead.
                   </p>
-                  <div className="flex items-center gap-6">
-                    <button 
-                      onClick={() => {
-                        if (user) {
-                          localStorage.removeItem(`hasSeenTour_${user.id}`);
-                          if (location.pathname === '/dashboard') {
-                             navigate('/dashboard', { state: { startTour: true } });
-                          } else {
-                             navigate('/dashboard', { state: { startTour: true } });
-                          }
-                        }
-                      }}
-                      className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                    >
-                      Replay Tutorial
-                    </button>
-                    <Link to="/feedback" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                      Feedback
-                    </Link>
+                  <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                    <div className="flex items-center gap-4">
+                        <Link to="/privacy" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                          Privacy
+                        </Link>
+                        <Link to="/terms" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                          Terms
+                        </Link>
+                        <a href="mailto:support@yourhorizon.me" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                          Support
+                        </a>
+                    </div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">
-                      © {year} EtomCoda
+                      © {year} Horizon by EtomCoda. All rights reserved.
                     </p>
                   </div>
                 </div>
@@ -164,6 +157,9 @@ export default function Layout() {
 
               {isInviteModalOpen && (
                 <InviteModal onClose={() => setIsInviteModalOpen(false)} />
+              )}
+              {isSettingsOpen && (
+                <SettingsModal onClose={() => setIsSettingsOpen(false)} />
               )}
             </div>
           );

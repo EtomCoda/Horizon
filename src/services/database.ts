@@ -274,3 +274,31 @@ export const profileService = {
       return data as { count: number; cap_reached: boolean };
   },
 };
+
+export const paymentService = {
+  async verifyTransaction(reference: string, plan: string, expectedAmount: number) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase.functions.invoke('verify-payment', {
+        body: { 
+            reference, 
+            user_id: user.id,
+            plan, 
+            expected_amount: expectedAmount 
+        }
+      });
+
+      if (error) {
+          // Try to extract useful info
+          console.error('Verify Payment Error:', error);
+          throw new Error('Payment verification connection failed');
+      }
+      
+      if (data && data.error) {
+          throw new Error(data.error);
+      }
+
+      return data;
+  }
+};
