@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Upload, X, Loader2, FileImage, AlertCircle, Shield } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Course } from '../types';
+import { useData } from '../contexts/DataContext';
 
 interface ScanResultsModalProps {
   onClose: () => void;
@@ -14,6 +15,8 @@ const ScanResultsModal = ({ onClose, onScanComplete }: ScanResultsModalProps) =>
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { credits, deductCredits } = useData();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -35,6 +38,11 @@ const ScanResultsModal = ({ onClose, onScanComplete }: ScanResultsModalProps) =>
 
   const handleScan = async () => {
     if (!selectedImage) return;
+
+    if (credits < 15) {
+      setError(`Insufficient credits. You have ${credits} credits, but this action requires 15.`);
+      return;
+    }
 
     setIsScanning(true);
     setError(null);
@@ -74,6 +82,7 @@ const ScanResultsModal = ({ onClose, onScanComplete }: ScanResultsModalProps) =>
         throw new Error('No courses found in the image. Please try a clearer image.');
       }
 
+      await deductCredits(15); // Deduct credits
       onScanComplete(data.courses);
       onClose();
     } catch (err) {
@@ -169,7 +178,14 @@ const ScanResultsModal = ({ onClose, onScanComplete }: ScanResultsModalProps) =>
                   Processing...
                 </>
               ) : (
-                'Scan & Import'
+                <>
+                  <div className="flex items-center gap-2">
+                    <span>Scan & Import</span>
+                    <span className="bg-blue-500/30 text-xs px-2 py-0.5 rounded-full border border-blue-400/30 font-semibold">
+                      15 🪙
+                    </span>
+                  </div>
+                </>
               )}
             </button>
           </div>

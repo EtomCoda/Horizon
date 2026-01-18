@@ -58,7 +58,7 @@ const LandingPage = () => {
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
           <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-blob"></div>
           <div className="absolute top-40 right-10 w-72 h-72 bg-green-400/20 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-20 left-1/2 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-20 left-1/2 w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
         </div>
       </div>
 
@@ -95,8 +95,8 @@ const LandingPage = () => {
 
             {/* Card 3 */}
             <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-2xl border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300 group">
-              <div className="bg-purple-100 dark:bg-purple-900/30 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-7 h-7 text-purple-600 dark:text-purple-400" />
+              <div className="bg-cyan-100 dark:bg-cyan-900/30 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <TrendingUp className="w-7 h-7 text-cyan-600 dark:text-cyan-400" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Deep Insights</h3>
               <p className="text-gray-600 dark:text-gray-400">

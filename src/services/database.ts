@@ -206,7 +206,7 @@ export const profileService = {
   async get(userId: string) {
     const { data, error } = await supabase
       .from('profiles')
-      .select('grading_scale')
+      .select('*')
       .eq('id', userId)
       .maybeSingle();
 
@@ -246,5 +246,20 @@ export const profileService = {
       // We don't throw here to prevent blocking the UI
       // The local state will still update
     }
+  },
+
+  async deductCredits(amount: number): Promise<number> {
+    const { data, error } = await supabase
+      .rpc('deduct_credits', { amount_val: amount });
+
+    if (error) throw error;
+    return data as number; // Returns new balance
+  },
+
+  async unlockAnalytics(): Promise<void> {
+    const { error } = await supabase
+      .rpc('unlock_analytics');
+
+    if (error) throw error;
   },
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff, Check, X, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { validatePassword } from '../utils/passwordValidation';
@@ -7,6 +7,7 @@ import { validatePassword } from '../utils/passwordValidation';
 const AuthPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const from = location.state?.from?.pathname || "/dashboard";
   const [isSignIn, setIsSignIn] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
@@ -67,7 +68,8 @@ const AuthPage = () => {
       if (isSignIn) {
         await signIn(email, password);
       } else {
-        await signUp(email, password, username);
+        const referralCode = searchParams.get('ref') || undefined;
+        await signUp(email, password, username, referralCode);
       }
       navigate(from, { replace: true });
     } catch (err) {
