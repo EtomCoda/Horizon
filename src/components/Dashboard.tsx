@@ -64,15 +64,15 @@ const Dashboard = () => {
             let message = '';
             
             // Determine which bonus they got based on current balance
-            // Base is 45. 
-            // Referral is +30 => 75.
+            // Base is 25. 
+            // Referral is +30 => 55.
             // Promo is 120.
             // Promo + Referral = 150.
             if (credits >= 150) {
                 message = "Double win! You got the Early Bird Promo (+120) AND Referral Bonus (+30)!";
             } else if (credits >= 120) {
                  message = "You're an Early Bird! Enjoy +120 Credits on us.";
-            } else if (credits >= 75) {
+            } else if (credits >= 55) {
                  message = "Your referral bonus (+30 Credits) has been applied!";
             } else {
                  return; // No special bonus, don't show toast
