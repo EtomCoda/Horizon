@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Semester, GoalData, Course } from '../types';
-import { semesterService, courseService, goalService } from '../services/database';
+import { semesterService, courseService, goalService, profileService } from '../services/database';
 import { useAuth } from './AuthContext';
 import toast from 'react-hot-toast';
 
@@ -12,7 +12,13 @@ interface DataContextType {
   deleteSemester: (id: string) => Promise<void>;
   updateSemester: (updatedSemester: Semester) => Promise<void>;
   saveGoal: (targetCGPA: number) => Promise<void>;
-  // Add course handlers here if needed later
+  credits: number;
+  referralCode: string | null;
+  referredBy: string | null; // Added
+  analyticsExpiresAt: string | null;
+  deductCredits: (amount: number) => Promise<void>;
+  unlockAnalytics: () => Promise<void>;
+  referralCount: number;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -22,13 +28,26 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [goal, setGoal] = useState<GoalData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [credits, setCredits] = useState(0);
+  const [analyticsExpiresAt, setAnalyticsExpiresAt] = useState<string | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referredBy, setReferredBy] = useState<string | null>(null);
+  const [referralCount, setReferralCount] = useState(0);
+
+  // ... (imports are fine)
 
   useEffect(() => {
     const loadData = async () => {
       if (!user) return;
       try {
         setLoading(true);
-        const semestersData = await semesterService.getAll(user.id);
+        const [semestersData, goalData, profileData, referralData] = await Promise.all([
+          semesterService.getAll(user.id),
+          goalService.get(user.id),
+          profileService.get(user.id),
+          profileService.getReferralStats() // Add this service call
+        ]);
+
         if (semestersData.length > 0) {
           const semesterIds = semestersData.map(s => s.id);
           const allCourses = await courseService.getAllBySemesterIds(semesterIds);
@@ -37,8 +56,19 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
           });
         }
         setSemesters(semestersData);
-        const goalData = await goalService.get(user.id);
         setGoal(goalData);
+        
+        if (profileData) {
+           setCredits(profileData.credits_balance ?? 0);
+           setAnalyticsExpiresAt(profileData.analytics_expires_at ?? null);
+           setReferralCode(profileData.referral_code ?? null);
+           setReferredBy(profileData.referred_by ?? null);
+        }
+
+        if (referralData) {
+            setReferralCount(referralData.count || 0);
+        }
+
       } catch (error) {
         if (import.meta.env.DEV) console.error('Error loading data:', error);
         toast.error('Failed to load data.');
@@ -69,14 +99,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       }
       setSemesters(prev => [...prev, newSemester]);
       if (scannedCourses.length > 0) {
-        toast.success(`Successfully imported ${scannedCourses.length} courses!`);
+        toast.success(`Successfully imported ${scannedCourses.length} courses!`, { duration: 2000 });
       } else {
         toast.success('Semester added successfully');
       }
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error adding semester:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to add semester');
-      throw error; // Re-throw to be caught in the component
+      throw error;
     }
   };
 
@@ -116,6 +146,21 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const deductCredits = async (amount: number) => {
+      const newBalance = await profileService.deductCredits(amount);
+      setCredits(newBalance);
+  };
+
+  const unlockAnalytics = async () => {
+      await profileService.unlockAnalytics();
+      setCredits(prev => prev - 30);
+      // We can optimistically set the date to ~4 months from now, or just re-fetch.
+      // Optimistic update:
+      const date = new Date();
+      date.setDate(date.getDate() + 120);
+      setAnalyticsExpiresAt(date.toISOString());
+  };
+
   const value = {
     semesters,
     goal,
@@ -124,6 +169,13 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     deleteSemester,
     updateSemester,
     saveGoal,
+    credits,
+    referralCode,
+    referredBy,
+    analyticsExpiresAt,
+    deductCredits,
+    unlockAnalytics,
+    referralCount,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

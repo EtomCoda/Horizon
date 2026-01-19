@@ -31,3 +31,14 @@ export interface WhatIfData {
   currentCredits: number;
   hypotheticalCourses: HypotheticalCourse[];
 }
+
+export interface Profile {
+  id: string;
+  grading_scale: string;
+  credits_balance: number;
+  referral_code: string;
+  referred_by: string | null;
+  analytics_expires_at: string | null;
+  created_at: string;
+  updated_at: string | null;
+}

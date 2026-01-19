@@ -206,7 +206,7 @@ export const profileService = {
   async get(userId: string) {
     const { data, error } = await supabase
       .from('profiles')
-      .select('grading_scale')
+      .select('*')
       .eq('id', userId)
       .maybeSingle();
 
@@ -247,4 +247,58 @@ export const profileService = {
       // The local state will still update
     }
   },
+
+  async deductCredits(amount: number): Promise<number> {
+    const { data, error } = await supabase
+      .rpc('deduct_credits', { amount_val: amount });
+
+    if (error) throw error;
+    return data as number; // Returns new balance
+  },
+
+  async unlockAnalytics(): Promise<void> {
+    const { error } = await supabase
+      .rpc('unlock_analytics');
+
+    if (error) throw error;
+  },
+
+  async getReferralStats(): Promise<{ count: number; cap_reached: boolean }> {
+      const { data, error } = await supabase
+        .rpc('get_referral_stats');
+
+      if (error) {
+          console.error("Referral stats error:", error);
+          return { count: 0, cap_reached: false };
+      }
+      return data as { count: number; cap_reached: boolean };
+  },
+};
+
+export const paymentService = {
+  async verifyTransaction(reference: string, plan: string, expectedAmount: number) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase.functions.invoke('verify-payment', {
+        body: { 
+            reference, 
+            user_id: user.id,
+            plan, 
+            expected_amount: expectedAmount 
+        }
+      });
+
+      if (error) {
+          // Try to extract useful info
+          console.error('Verify Payment Error:', error);
+          throw new Error('Payment verification connection failed');
+      }
+      
+      if (data && data.error) {
+          throw new Error(data.error);
+      }
+
+      return data;
+  }
 };

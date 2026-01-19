@@ -1,18 +1,22 @@
 
 import { useNavigate } from 'react-router-dom';
-import { useMemo } from 'react';
-import { BarChart, PieChart, TrendingUp, BookOpen, Award, AlertCircle, Info, HelpCircle } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
+import { BarChart, PieChart, TrendingUp, BookOpen, Award, AlertCircle, Info, Lock } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useData } from '../contexts/DataContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { getGradePoints, getMaxCGPA } from '../utils/gradePoints';
+import InsufficientFundsModal from './InsufficientFundsModal';
 
 const Analytics = () => {
-  const { semesters } = useData();
+  const { semesters, analyticsExpiresAt, unlockAnalytics, credits } = useData();
   const { gradingScale } = useSettings();
   const gradePoints = getGradePoints(gradingScale);
 
   const navigate = useNavigate();
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  const [showInsufficientFunds, setShowInsufficientFunds] = useState(false);
 
   // Flatten all courses into a single array
   const allCourses = useMemo(() => 
@@ -92,6 +96,11 @@ const Analytics = () => {
       });
   }, [semesters, gradePoints]);
 
+  const isAnalyticsUnlocked = useMemo(() => {
+    if (!analyticsExpiresAt) return false;
+    return new Date(analyticsExpiresAt) > new Date();
+  }, [analyticsExpiresAt]);
+
   if (allCourses.length === 0) {
     return (
         <div 
@@ -109,12 +118,88 @@ const Analytics = () => {
     );
   }
 
+  const handleUnlock = async () => {
+      if (credits < 30) {
+          setShowInsufficientFunds(true);
+          return;
+      }
+      setIsUnlocking(true);
+      try {
+          await unlockAnalytics();
+          toast.success("Analytics Unlocked!");
+      } catch (e: any) {
+          toast.error(e.message || "Failed to unlock");
+      } finally {
+          setIsUnlocking(false);
+      }
+  };
+
+  if (showInsufficientFunds) {
+      return (
+          <InsufficientFundsModal 
+              onClose={() => setShowInsufficientFunds(false)}
+              neededCredits={30}
+              currentCredits={credits}
+          />
+      );
+  }
+
+  if (!isAnalyticsUnlocked) {
+      return (
+          <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md text-center">
+              <div className="bg-blue-100 dark:bg-blue-900/30 p-6 rounded-full mb-6 relative">
+                  <TrendingUp className="w-12 h-12 text-blue-600 dark:text-blue-400" />
+                  <div className="absolute -bottom-2 -right-2 bg-white dark:bg-gray-800 p-2 rounded-full shadow-lg">
+                      <Lock className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                  </div>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Unlock Premium Analytics</h2>
+              <p className="text-gray-600 dark:text-gray-400 max-w-lg mb-8 text-lg">
+                  Gain deep insights into your academic performance, track GPA trends, identifying strengths, and visualize grade distributions.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg w-full mb-8 text-left">
+                   <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                       <h4 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-1">
+                           <TrendingUp className="w-4 h-4 text-blue-500"/> Performance Trends
+                       </h4>
+                       <p className="text-sm text-gray-500 dark:text-gray-400">Track your CGPA evolution semester over semester.</p>
+                   </div>
+                   <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                       <h4 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-1">
+                           <PieChart className="w-4 h-4 text-green-500"/> Points Breakdown
+                       </h4>
+                       <p className="text-sm text-gray-500 dark:text-gray-400">See exactly where your grades are coming from.</p>
+                   </div>
+              </div>
+
+              <button 
+                onClick={handleUnlock}
+                disabled={isUnlocking}
+                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold rounded-lg shadow-lg transform hover:-translate-y-0.5 transition-all flex items-center gap-2 text-lg"
+              >
+                 {isUnlocking ? 'Unlocking...' : (
+                   <>
+                     Unlock Semester Pass
+                     <span className="bg-blue-500/30 text-md px-2 py-0.5 rounded-full border border-blue-400/30 font-semibold">
+                       30 🪙
+                     </span>
+                   </>
+                 )}
+              </button>
+              <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                  Valid for <b>4 months</b> from purchase.
+              </p>
+          </div>
+      );
+  }
+
   return (
     <div className="space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-lg">
-            <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+          <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
+            <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Academic Analytics</h2>
@@ -139,7 +224,7 @@ const Analytics = () => {
                     </div>
                 </div>
                 
-                <ResponsiveContainer width="100%" height="85%">
+                <ResponsiveContainer width="100%" height="85%" minWidth={0}>
                     <AreaChart
                         data={semesterTrends}
                         margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
@@ -220,8 +305,8 @@ const Analytics = () => {
                         </h3>
                         <div className="group relative">
                             <Info className="w-4 h-4 text-gray-400 cursor-help" />
-                             <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 p-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                Your lowest scoring course. Focusing here can have the biggest impact on your CGPA.
+                             <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                Your lowest grade. Consider retaking this module if possible, or aim for top grades in future high-credit courses to offset the impact.
                             </div>
                         </div>
                     </div>

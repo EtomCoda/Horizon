@@ -15,17 +15,24 @@ import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CalculatorPage from "./components/CalculatorPage";
 import LandingPage from "./components/LandingPage";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import TermsOfService from "./components/TermsOfService";
+
+import PageViewTracker from "./components/PageViewTracker";
 
 function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
+        <PageViewTracker />
         <AuthProvider>
           <SettingsProvider>
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/update-password" element={<UpdatePasswordPage />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
               
               <Route element={<ProtectedRoute />}>
                 <Route element={<Layout />}>
