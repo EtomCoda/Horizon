@@ -37,6 +37,7 @@ const PrivacyPolicy = () => {
                 <li><strong>Personal Information:</strong> Name and email address (collected during sign-up).</li>
                 <li><strong>Academic Data:</strong> Course codes, grades, and units that are extracted from your transcripts or manually entered.</li>
                 <li><strong>Financial Data:</strong> We do <strong>not</strong> store your debit/credit card information. All payments are processed by <strong>Paystack</strong>. We only store a transaction reference ID to track your credit purchases.</li>
+                <li><strong>Usage Data:</strong> We collect anonymous data about how you interact with the application (e.g., which features you use most) to help us improve the user experience.</li>
               </ul>
             </section>
 
@@ -56,6 +57,7 @@ const PrivacyPolicy = () => {
                 <li>To calculate your CGPA and provide "Semester Analytics."</li>
                 <li>To maintain your Credit Balance and Transaction History.</li>
                 <li>To communicate important service updates (e.g., maintenance alerts).</li>
+                <li>To analyze platform usage trends and identify areas for improvement.</li>
               </ul>
             </section>
             
@@ -66,6 +68,7 @@ const PrivacyPolicy = () => {
                 <li><strong>Google Gemini (AI):</strong> Used to process and extract text from transcript documents. Data sent is for processing only and is not used to train their public models.</li>
                 <li><strong>Paystack:</strong> Used to process payments securely.</li>
                 <li><strong>Supabase:</strong> Used for secure database hosting and authentication.</li>
+                <li><strong>PostHog:</strong> Used for product analytics to understand how users interact with our application.</li>
               </ul>
             </section>
 
