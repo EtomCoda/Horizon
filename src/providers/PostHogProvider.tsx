@@ -2,10 +2,9 @@ import { ReactNode } from "react";
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
 
-// Handle different environment variable naming conventions
 const POSTHOG_KEY = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
-// Use reverse proxy to avoid ad blockers - falls back to direct PostHog if not set
-const POSTHOG_HOST = import.meta.env.VITE_PUBLIC_POSTHOG_HOST || "/ingest";
+// Use reverse proxy to avoid ad blockers
+const POSTHOG_HOST = "/api/v2";
 
 // Initialize PostHog
 if (POSTHOG_KEY) {

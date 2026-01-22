@@ -1,11 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/ingest/static/:path*",
+      "source": "/api/v2/static/:path*",
       "destination": "https://us-assets.i.posthog.com/static/:path*"
     },
     {
-      "source": "/ingest/:path*",
+      "source": "/api/v2/:path*",
       "destination": "https://us.i.posthog.com/:path*"
     },
     {
