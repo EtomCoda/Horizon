@@ -204,7 +204,7 @@ const ScanResultsModal = ({ onClose, onScanComplete }: ScanResultsModalProps) =>
 
           <p className="text-xs text-center text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1.5">
             <Shield className="w-3 h-3" />
-            <b>We do not view or store your uploaded data.</b>
+            <b>Your data is encrypted and visible only to you.</b>
           </p>
         </div>
       </div>
