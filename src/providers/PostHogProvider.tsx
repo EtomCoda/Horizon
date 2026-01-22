@@ -3,14 +3,14 @@ import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
 
 const POSTHOG_KEY = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
-// Use reverse proxy to avoid ad blockers
-const POSTHOG_HOST = "/api/v2";
+// Set to the local proxy path defined in vercel.json
+const POSTHOG_HOST = "/ph";
 
 // Initialize PostHog
 if (POSTHOG_KEY) {
   posthog.init(POSTHOG_KEY, {
     api_host: POSTHOG_HOST,
-    ui_host: "https://us.posthog.com", // Required when using reverse proxy
+    ui_host: "https://us.posthog.com",
     person_profiles: "identified_only",
     capture_pageview: false, // Disable auto-capture, we will do it manually
     loaded: (ph) => {
