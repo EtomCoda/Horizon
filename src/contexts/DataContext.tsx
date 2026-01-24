@@ -8,7 +8,7 @@ interface DataContextType {
   semesters: Semester[];
   goal: GoalData | null;
   loading: boolean;
-  addSemester: (name: string, scannedCourses: Partial<Course>[]) => Promise<void>;
+  addSemester: (name: string, scannedCourses: Partial<Course>[], level?: number, semesterNumber?: number) => Promise<void>;
   deleteSemester: (id: string) => Promise<void>;
   updateSemester: (updatedSemester: Semester) => Promise<void>;
   saveGoal: (targetCGPA: number) => Promise<void>;
@@ -80,10 +80,10 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     loadData();
   }, [user?.id]);
 
-  const addSemester = async (name: string, scannedCourses: Partial<Course>[]) => {
+  const addSemester = async (name: string, scannedCourses: Partial<Course>[], level?: number, semesterNumber?: number) => {
     if (!user) return;
     try {
-      const newSemester = await semesterService.create(user.id, name);
+      const newSemester = await semesterService.create(user.id, name, level, semesterNumber);
       if (scannedCourses.length > 0) {
         for (const course of scannedCourses) {
           if (course.name && course.creditHours && course.grade) {

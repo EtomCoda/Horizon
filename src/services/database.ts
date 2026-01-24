@@ -13,15 +13,22 @@ export const semesterService = {
     return (data || []).map(sem => ({
       id: sem.id,
       name: sem.name,
+      level: sem.level,
+      semester_number: sem.semester_number,
       courses: [],
       gpa: 0,
     }));
   },
 
-  async create(userId: string, name: string): Promise<Semester> {
+  async create(userId: string, name: string, level?: number, semesterNumber?: number): Promise<Semester> {
     const { data, error, status, statusText } = await supabase
       .from('semesters')
-      .insert([{ user_id: userId, name }])
+      .insert([{ 
+        user_id: userId, 
+        name,
+        level,
+        semester_number: semesterNumber
+      }])
       .select()
       .single();
 
@@ -36,6 +43,8 @@ export const semesterService = {
     return {
       id: data.id,
       name: data.name,
+      level: data.level,
+      semester_number: data.semester_number,
       courses: [],
       gpa: 0,
     };

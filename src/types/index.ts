@@ -11,6 +11,8 @@ export interface Course {
 export interface Semester {
   id: string;
   name: string;
+  level?: number;
+  semester_number?: number;
   courses: Course[];
   gpa: number;
 }
