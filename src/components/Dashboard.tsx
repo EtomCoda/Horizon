@@ -181,10 +181,10 @@ const Dashboard = () => {
   const cgpa = calculateCGPA(semesters, gradePoints);
   const totalCredits = getTotalCredits(semesters);
 
-  const handleAddSemester = async (name: string) => {
+  const handleAddSemester = async (name: string, level?: number, semesterNumber?: number) => {
     try {
       setAddError(null);
-      await addSemester(name, scannedCourses);
+      await addSemester(name, scannedCourses, level, semesterNumber);
       setIsAddModalOpen(false);
       setScannedCourses([]); // Clear scanned courses
     } catch (error) {
