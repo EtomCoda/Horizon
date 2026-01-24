@@ -251,10 +251,10 @@ const Analytics = () => {
             </div>
 
             {/* Tab Navigation */}
-            <div className="bg-gray-100 dark:bg-gray-700/50 p-1 rounded-lg inline-flex">
+            <div className="bg-gray-100 dark:bg-gray-700/50 p-1 rounded-lg flex w-full md:w-auto md:inline-flex">
                 <button
                     onClick={() => setActiveTab('visual_reports')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    className={`flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all ${
                         activeTab === 'visual_reports' 
                         ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -264,7 +264,7 @@ const Analytics = () => {
                 </button>
                 <button
                     onClick={() => setActiveTab('deep_dive')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    className={`flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all ${
                         activeTab === 'deep_dive' 
                         ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'

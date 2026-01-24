@@ -87,11 +87,11 @@ const NextSemesterForecast: React.FC<NextSemesterForecastProps> = ({ semesters, 
             </div>
 
             {/* Interactive Slider Control */}
-            <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg flex items-center gap-4 border border-gray-200 dark:border-gray-600">
-                <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 whitespace-nowrap">
+            <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 border border-gray-200 dark:border-gray-600 w-full md:w-auto">
+                <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 whitespace-nowrap self-start sm:self-auto">
                     Projected Load:
                 </span>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 w-full sm:w-auto">
                     <input 
                         type="range" 
                         min="10" 
@@ -99,9 +99,9 @@ const NextSemesterForecast: React.FC<NextSemesterForecastProps> = ({ semesters, 
                         step="1"
                         value={predictedCredits}
                         onChange={(e) => setPredictedCredits(parseInt(e.target.value))}
-                        className="w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600 accent-blue-600"
+                        className="w-full sm:w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600 accent-blue-600"
                     />
-                    <span className="text-sm font-bold text-gray-900 dark:text-white min-w-[3rem]">
+                    <span className="text-sm font-bold text-gray-900 dark:text-white min-w-[3rem] text-right">
                         {predictedCredits} Unit{predictedCredits !== 1 ? 's' : ''}
                     </span>
                 </div>
