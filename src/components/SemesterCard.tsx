@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Edit2, Trash2, ChevronDown, ChevronUp, Plus, BookOpen } from 'lucide-react';
+import {Trash2, ChevronDown, ChevronUp, Plus, BookOpen } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Semester, Course } from '../types';
 import { calculateSemesterGPA } from '../utils/gpaCalculations';

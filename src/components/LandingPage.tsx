@@ -14,7 +14,7 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <img src="/horizon.png" alt="Horizon Logo" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
+              <img src="/horizon.png" alt="Horizon Logo" width="40" height="40" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
               <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-500">
                 Horizon
               </span>

@@ -14,7 +14,7 @@ import GoalGapAnalysis from './analytics/GoalGapAnalysis';
 import NextSemesterForecast from './analytics/NextSemesterForecast';
 
 const Analytics = () => {
-  const { semesters, analyticsExpiresAt, unlockAnalytics, credits } = useData();
+  const { semesters, analyticsExpiresAt, unlockAnalytics, credits, goal } = useData();
   const { gradingScale } = useSettings();
   const gradePoints = getGradePoints(gradingScale);
 
@@ -495,7 +495,7 @@ const Analytics = () => {
         {/* TAB CONTENT: DEEP DIVE (Formerly Strategy) */}
         {activeTab === 'deep_dive' && (
             <div className="space-y-6 animate-enter">
-                <GoalGapAnalysis semesters={semesters} gradingScale={gradingScale} goal={useData().goal} />
+                <GoalGapAnalysis semesters={semesters} gradingScale={gradingScale} goal={goal} />
                 <NextSemesterForecast semesters={semesters} gradingScale={gradingScale} />
                 <ActionableInsights semesters={semesters} gradingScale={gradingScale} />
                 <RiskAnalysis semesters={semesters} gradingScale={gradingScale} />

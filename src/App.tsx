@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -6,43 +7,65 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { SettingsProvider } from "./contexts/SettingsContext";
 
-import AuthPage from "./components/AuthPage";
-import Dashboard from "./components/Dashboard";
-import AnalyticsPage from "./components/Analytics";
-import FeedbackPage from "./components/FeedbackPage";
-import UpdatePasswordPage from "./components/UpdatePasswordPage";
-import Layout from "./components/Layout";
-import ProtectedRoute from "./components/ProtectedRoute";
-import CalculatorPage from "./components/CalculatorPage";
+// Critical path components - loaded immediately
 import LandingPage from "./components/LandingPage";
-import PrivacyPolicy from "./components/PrivacyPolicy";
-import TermsOfService from "./components/TermsOfService";
+import AuthPage from "./components/AuthPage";
 
-import PageViewTracker from "./components/PageViewTracker";
+// Lazy load non-critical components for code splitting
+const Dashboard = lazy(() => import("./components/Dashboard"));
+const AnalyticsPage = lazy(() => import("./components/Analytics"));
+const FeedbackPage = lazy(() => import("./components/FeedbackPage"));
+const UpdatePasswordPage = lazy(() => import("./components/UpdatePasswordPage"));
+const Layout = lazy(() => import("./components/Layout"));
+const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
+const CalculatorPage = lazy(() => import("./components/CalculatorPage"));
+const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./components/TermsOfService"));
+
+// Lazy load analytics tracker (non-critical)
+const PageViewTracker = lazy(() => import("./components/PageViewTracker"));
+
+// Lightweight loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+    <div className="text-center">
+      <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3"></div>
+      <p className="text-gray-500 dark:text-gray-400 text-sm">Loading...</p>
+    </div>
+  </div>
+);
 
 function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
-        <PageViewTracker />
+        {/* Non-blocking page view tracker */}
+        <Suspense fallback={null}>
+          <PageViewTracker />
+        </Suspense>
         <AuthProvider>
           <SettingsProvider>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/update-password" element={<UpdatePasswordPage />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/terms" element={<TermsOfService />} />
-              
-              <Route element={<ProtectedRoute />}>
-                <Route element={<Layout />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/calculator" element={<CalculatorPage />} />
-                  <Route path="/analytics" element={<AnalyticsPage />} />
-                  <Route path="/feedback" element={<FeedbackPage />} />
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                {/* Critical routes - LandingPage and AuthPage are not lazy */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                
+                {/* Lazy loaded routes */}
+                <Route path="/update-password" element={<UpdatePasswordPage />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<Layout />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/calculator" element={<CalculatorPage />} />
+                    <Route path="/analytics" element={<AnalyticsPage />} />
+                    <Route path="/feedback" element={<FeedbackPage />} />
+                  </Route>
                 </Route>
-              </Route>
-            </Routes>
+              </Routes>
+            </Suspense>
           </SettingsProvider>
         </AuthProvider>
       </BrowserRouter>
