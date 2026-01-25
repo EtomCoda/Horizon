@@ -10,6 +10,7 @@ import { SettingsProvider } from "./contexts/SettingsContext";
 // Critical path components - loaded immediately
 import LandingPage from "./components/LandingPage";
 import AuthPage from "./components/AuthPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Lazy load non-critical components for code splitting
 const Dashboard = lazy(() => import("./components/Dashboard"));
@@ -17,7 +18,6 @@ const AnalyticsPage = lazy(() => import("./components/Analytics"));
 const FeedbackPage = lazy(() => import("./components/FeedbackPage"));
 const UpdatePasswordPage = lazy(() => import("./components/UpdatePasswordPage"));
 const Layout = lazy(() => import("./components/Layout"));
-const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
 const CalculatorPage = lazy(() => import("./components/CalculatorPage"));
 const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./components/TermsOfService"));
