@@ -177,9 +177,9 @@ const AuthPage = () => {
 
       {/* Right Side - Auth Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4">
-        <div className="bg-white bg-opacity-50 dark:bg-gray-800 dark:bg-opacity-50 backdrop-blur-lg rounded-2xl shadow-xl max-w-md w-full p-8 z-10 animate-fade-in-up opacity-0" style={{ animationDelay: '0.2s' }}>
+        <div className="bg-white bg-opacity-50 dark:bg-gray-800 dark:bg-opacity-50 backdrop-blur-lg rounded-2xl shadow-xl max-w-md w-full p-8 z-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           <div className="flex justify-center mb-6">
-            <img src="/horizon.png" alt="Horizon logo" className="w-32 h-32 object-contain shadow-xl rounded-xl" />
+            <img src="/horizon.webp" alt="Horizon logo" width="128" height="128" className="w-32 h-32 object-contain shadow-xl rounded-xl" />
           </div>
           
           {isForgotPassword ? (
@@ -401,7 +401,7 @@ const AuthPage = () => {
           <div className="mt-8 text-center text-xs text-gray-500 dark:text-gray-600">
             <div className="flex items-center justify-center">
               <p>Horizon by EtomCoda</p>
-              <img src="/metransparent.png" alt="Horizon logo" className="w-4 h-4 ml-1" />
+              <img src="/metransparent.webp" alt="EtomCoda logo" width="16" height="16" loading="lazy" className="w-4 h-4 ml-1" />
             </div>
           </div>
         </div>

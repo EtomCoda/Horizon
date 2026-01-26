@@ -64,7 +64,7 @@ const UpdatePasswordPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <div className="bg-white bg-opacity-50 dark:bg-gray-800 dark:bg-opacity-50 backdrop-blur-lg rounded-2xl shadow-xl max-w-md w-full p-8">
         <div className="flex justify-center mb-6">
-          <img src="/horizon.png" alt="Horizon logo" className="w-32 h-32 object-contain shadow-xl rounded-xl" />
+          <img src="/horizon.webp" alt="Horizon logo" width="128" height="128" className="w-32 h-32 object-contain shadow-xl rounded-xl" />
         </div>
         <p className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-2">
           Reset Your Password

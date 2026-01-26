@@ -13,7 +13,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }: Confi
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full animate-fade-in-up opacity-0" style={{ animationDelay: '0.1s' }}>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
         <div className="p-6">
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">

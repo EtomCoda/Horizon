@@ -31,9 +31,9 @@ export default {
         },
       },
       animation: {
-        'fade-in': 'fade-in 0.5s ease-out forwards',
-        'fade-in-down': 'fade-in-down 0.5s ease-out forwards',
-        'fade-in-up': 'fade-in-up 0.5s ease-out forwards',
+        'fade-in': 'fade-in 0.5s ease-out both',
+        'fade-in-down': 'fade-in-down 0.5s ease-out both',
+        'fade-in-up': 'fade-in-up 0.5s ease-out both',
       },
     },
   },
