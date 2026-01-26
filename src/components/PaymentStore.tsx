@@ -76,7 +76,7 @@ const PaymentStore = ({ onClose }: PaymentStoreProps) => {
                         amount={500 * 100}
                         text="Get 50 Credits →"
                         onSuccess={(ref: any) => handlePaymentSuccess(ref, 'Quick Pass', 500)}
-                        onClose={() => console.log('Payment closed')}
+                        onClose={() => toast('Just ₦500 for a whole semester! 💭', { duration: 4000 })}
                         className="w-full py-3 rounded-xl bg-blue-600 text-white font-bold shadow-md hover:bg-blue-700 transition-colors mt-auto"
                      />
                 </div>
@@ -109,7 +109,7 @@ const PaymentStore = ({ onClose }: PaymentStoreProps) => {
                          amount={2000 * 100}
                          text="Claim 300 Credits →"
                          onSuccess={(ref: any) => handlePaymentSuccess(ref, "Dean's List", 2000)}
-                         onClose={() => console.log('Payment closed')}
+                         onClose={() => toast('You were so close to saving 50%! 🏆', { duration: 4000 })}
                          className="w-full py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold shadow-md transition-all transform hover:scale-105 mt-auto"
                      />
                 </div>
@@ -141,7 +141,7 @@ const PaymentStore = ({ onClose }: PaymentStoreProps) => {
                          amount={1000 * 100}
                          text="Get 120 Credits →"
                          onSuccess={(ref: any) => handlePaymentSuccess(ref, 'Scholar Bundle', 1000)}
-                         onClose={() => console.log('Payment closed')}
+                         onClose={() => toast('You can get +20 bonus right now! 🔥', { duration: 4000 })}
                          className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all mt-auto"
                      />
                 </div>
