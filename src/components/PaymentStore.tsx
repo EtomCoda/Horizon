@@ -73,8 +73,8 @@ const PaymentStore = ({ onClose }: PaymentStoreProps) => {
 
                      <PaystackButton 
                         {...baseConfig}
-                        amount={500 * 100} // 500 Naira
-                        text="Buy Now"
+                        amount={500 * 100}
+                        text="Get 50 Credits →"
                         onSuccess={(ref: any) => handlePaymentSuccess(ref, 'Quick Pass', 500)}
                         onClose={() => console.log('Payment closed')}
                         className="w-full py-3 rounded-xl bg-blue-600 text-white font-bold shadow-md hover:bg-blue-700 transition-colors mt-auto"
@@ -95,6 +95,7 @@ const PaymentStore = ({ onClose }: PaymentStoreProps) => {
                      
                      <div className="mb-6">
                         <span className="text-3xl font-bold text-gray-900 dark:text-white">₦2,000</span>
+                        <span className="text-gray-400 text-sm ml-1 line-through">₦3,000</span>
                      </div>
 
                      <div className="bg-yellow-50 dark:bg-yellow-900/10 rounded-lg py-3 px-6 mb-6 border border-yellow-100 dark:border-yellow-700/50 shadow-sm w-full">
@@ -105,11 +106,11 @@ const PaymentStore = ({ onClose }: PaymentStoreProps) => {
 
                      <PaystackButton 
                          {...baseConfig}
-                         amount={2000 * 100} // 2000 Naira
-                         text="Claim Offer"
+                         amount={2000 * 100}
+                         text="Claim 300 Credits →"
                          onSuccess={(ref: any) => handlePaymentSuccess(ref, "Dean's List", 2000)}
                          onClose={() => console.log('Payment closed')}
-                         className="w-full py-3 rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white font-bold shadow-md transition-all transform hover:scale-105 mt-auto"
+                         className="w-full py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold shadow-md transition-all transform hover:scale-105 mt-auto"
                      />
                 </div>
 
@@ -137,8 +138,8 @@ const PaymentStore = ({ onClose }: PaymentStoreProps) => {
 
                      <PaystackButton 
                          {...baseConfig}
-                         amount={1000 * 100} // 1000 Naira
-                         text="Get Bundle"
+                         amount={1000 * 100}
+                         text="Get 120 Credits →"
                          onSuccess={(ref: any) => handlePaymentSuccess(ref, 'Scholar Bundle', 1000)}
                          onClose={() => console.log('Payment closed')}
                          className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all mt-auto"
@@ -150,6 +151,9 @@ const PaymentStore = ({ onClose }: PaymentStoreProps) => {
                  <p className="text-xs text-gray-400 flex items-center justify-center gap-2">
                     <span className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">SSL Secured Payment</span>
                     <span className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Instant Activation</span>
+                 </p>
+                 <p className="text-xs text-gray-400 mt-2">
+                    Payments securely processed by Paystack
                  </p>
             </div>
         </div>
