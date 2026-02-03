@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { Mail, Lock, User, Eye, EyeOff, Check, X, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Check, X, ShieldCheck, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { validatePassword } from '../utils/passwordValidation';
 
@@ -367,9 +367,12 @@ const AuthPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 rounded-lg transition-colors mt-6"
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 rounded-lg transition-colors mt-6 flex items-center justify-center gap-2"
               >
-                {loading ? 'Loading...' : isSignIn ? 'Sign In' : 'Sign Up'}
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading 
+                  ? (isSignIn ? 'Signing in...' : 'Creating account...') 
+                  : (isSignIn ? 'Sign In' : 'Sign Up')}
               </button>
               
               {!isSignIn && (
