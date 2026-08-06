@@ -1,19 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Plus, Target, TrendingUp, BookOpen, Settings, Info, Upload, Rocket } from 'lucide-react';
+import { Plus, Target, TrendingUp, BookOpen, Settings, Info, Rocket } from 'lucide-react';
 import { calculateCGPA, getTotalCredits } from '../utils/gpaCalculations';
 import { useSettings } from '../contexts/SettingsContext';
-import { getGradePoints, GradingScaleType, GRADING_SCALES, getMaxCGPA } from '../utils/gradePoints';
+import { getGradePoints, GradingScaleType, GRADING_SCALES, getMaxCGPA, isFailingGrade } from '../utils/gradePoints';
 import { useData } from '../contexts/DataContext';
 import SemesterCard from './SemesterCard';
+import CarryoverAlert from './CarryoverAlert';
 import GoalCard from './GoalCard';
 import AddSemesterModal from './AddSemesterModal';
-import ScanResultsModal from './ScanResultsModal';
-import { Course } from '../types';
+import BulkAddCoursesModal from './BulkAddCoursesModal';
+import InsufficientFundsModal from './InsufficientFundsModal';
+import { Course, Semester } from '../types';
 import toast from 'react-hot-toast';
-import { driver } from 'driver.js';
-import 'driver.js/dist/driver.css';
 import { useAuth } from '../contexts/AuthContext';
+import OnboardingWizard from './OnboardingWizard';
+import FeatureSpotlight from './FeatureSpotlight';
+import { supabase } from '../lib/supabase';
 
 const Dashboard = () => {
   const { gradingScale, setGradingScale } = useSettings();
@@ -22,6 +25,7 @@ const Dashboard = () => {
     goal,
     loading,
     addSemester,
+    addCourses,
     deleteSemester,
     updateSemester,
     saveGoal,
@@ -31,7 +35,6 @@ const Dashboard = () => {
   const location = useLocation();
   // ... existing hooks ...
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [scannedCourses, setScannedCourses] = useState<Partial<Course>[]>([]);
   const [addError, setAddError] = useState<string | null>(null);
 
@@ -44,7 +47,7 @@ const Dashboard = () => {
     if (location.state?.startTour) {
        // Clear the state so it doesn't loop
        window.history.replaceState({}, document.title);
-       setTimeout(() => startTour(), 500);
+       setTimeout(() => setIsOnboardingOpen(true), 500);
     }
   }, [location]);
 
@@ -114,81 +117,154 @@ const Dashboard = () => {
     }
   }, [loading, user, credits]);
 
-  // Driver.js Tour Logic
-  const startTour = () => {
-    if (!user) return;
-    
-    // Close the toast if it exists basically
-    toast.dismiss('tour-offer-toast');
-
-    const driverObj = driver({
-      showProgress: true,
-      allowClose: true, // Allow them to click out if they change their mind
-      steps: [
-        { element: '#add-semester-btn', popover: { title: 'Add Semester', description: 'Start by manually adding your grades for a semester.' } },
-        { element: '#upload-results-btn', popover: { title: 'Upload Your Result', description: 'Or scan a screenshot of your portal! Costs 15 Credits per scan.' } },
-        { element: '#invite-btn', popover: { title: 'Get More Credits', description: 'Invite friends to earn +30 Credits each. Use credits for more scans and premium analytics.' } },
-        { element: '#nav-credits', popover: { title: 'Your Balance', description: `You currently have ${credits} credits available for use.` } },
-      ]
-    });
-    driverObj.drive();
-    localStorage.setItem(`hasSeenTour_${user.id}`, 'true');
-  };
+  // Onboarding Logic
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
   useEffect(() => {
-     // Check if we need to offer the tour
-     const tourKey = user ? `hasSeenTour_${user.id}` : null;
+     // Check if we need to show onboarding
+     const onboardingKey = user ? `hasSeenOnboarding_${user.id}` : null;
      
-     if (!loading && user && semesters.length === 0 && tourKey && !localStorage.getItem(tourKey)) {
-        // Instead of auto-starting, show a toast offer
-        toast.custom((t) => (
-            <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-sm w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 p-4 flex flex-col gap-3`}>
-                <div className="flex items-start gap-3">
-                     <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
-                        <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                     </div>
-                     <div>
-                         <p className="font-medium text-gray-900 dark:text-white">New here?</p>
-                         <p className="text-sm text-gray-500 dark:text-gray-400">Would you like a quick tour of the features?</p>
-                     </div>
-                </div>
-                <div className="flex gap-2 justify-end">
-                     <button 
-                        onClick={() => {
-                            toast.dismiss(t.id);
-                            localStorage.setItem(tourKey, 'skipped'); // Mark as seen/skipped so it doesn't nag
-                        }}
-                        className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                     >
-                        No thanks
-                     </button>
-                     <button 
-                        onClick={() => {
-                             startTour();
-                        }}
-                        className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm"
-                     >
-                        Start Tour
-                     </button>
-                </div>
-            </div>
-        ), { id: 'tour-offer-toast', duration: 10000 }); // Longer duration, give them time to decide
+     if (!loading && user && semesters.length === 0 && onboardingKey && !localStorage.getItem(onboardingKey)) {
+        setIsOnboardingOpen(true);
      }
   }, [loading, user, semesters]);
+
+  const handleOnboardingComplete = () => {
+    setIsOnboardingOpen(false);
+    if (user) {
+        localStorage.setItem(`hasSeenOnboarding_${user.id}`, 'true');
+    }
+    // Launch the add semester flow immediately
+    setIsAddModalOpen(true);
+    // Ensure we are in a state where upload option is visible if it's the first time
+    setScannedCourses([]);
+  };
+
+  //Updates--
+  // "What's New" spotlight: 
+  // tells existing users that Add Semester
+  // now includes the upload option inline.
+  const [showUploadSpotlight, setShowUploadSpotlight] = useState(false);
+
+  useEffect(() => {
+    const spotlightKey = user ? `hasSeenUploadConsolidationSpotlight_${user.id}` : null;
+
+    if (!loading && user && semesters.length > 0 && spotlightKey && !localStorage.getItem(spotlightKey)) {
+      setShowUploadSpotlight(true);
+    }
+  }, [loading, user, semesters]);
+
+  const dismissUploadSpotlight = () => {
+    setShowUploadSpotlight(false);
+    if (user) {
+      localStorage.setItem(`hasSeenUploadConsolidationSpotlight_${user.id}`, 'true');
+    }
+  };
 
 
   const gradePoints = getGradePoints(gradingScale);
   const cgpa = calculateCGPA(semesters, gradePoints);
   const totalCredits = getTotalCredits(semesters);
 
+  // Identify unresolved carryovers (failed courses that haven't been retaken and passed)
+  const passedCourseNames = new Set<string>();
+  semesters.forEach(sem => {
+    (sem.courses || []).forEach(c => {
+      if (!isFailingGrade(c.grade, gradingScale)) {
+        passedCourseNames.add(c.name.trim().toUpperCase().replace(/\s+/g, ''));
+      }
+    });
+  });
+
+  const carryovers = semesters.flatMap(semester =>
+    (semester.courses || [])
+      .filter(course => isFailingGrade(course.grade, gradingScale))
+      .filter(failedCourse => {
+        const normalizedName = failedCourse.name.trim().toUpperCase().replace(/\s+/g, '');
+        return !passedCourseNames.has(normalizedName);
+      })
+      .map(course => ({ course, semesterName: semester.name }))
+  );
+
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const [showInsufficientFunds, setShowInsufficientFunds] = useState(false);
+  const { deductCredits } = useData();
+
+  const handleFileUpload = async (file: File) => {
+      if (credits < 15) {
+          setShowInsufficientFunds(true);
+          return;
+      }
+
+      setIsProcessingImage(true);
+      const toastId = toast.loading('Processing your result...');
+
+      try {
+          // Convert file to base64
+          const base64Image = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.readAsDataURL(file);
+              reader.onload = () => resolve(reader.result as string);
+              reader.onerror = error => reject(error);
+          });
+
+          // Call Supabase Edge Function
+          const { data, error: functionError } = await supabase.functions.invoke('image-parse-gemini', {
+              body: { image: base64Image },
+          });
+
+          if (functionError) {
+              const message = functionError.context?.json?.error || functionError.message || 'Failed to process image';
+              throw new Error(message);
+          }
+
+          if (!data || !Array.isArray(data.courses) || data.courses.length === 0) {
+              throw new Error('No courses found in the image. Please try a clearer image.');
+          }
+
+          await deductCredits(15);
+          setScannedCourses(data.courses);
+          toast.success('Courses extracted successfully!', { id: toastId });
+          
+          // The modal is already open, but we want to switch the view to "Manual" so they can see the results
+          // We can achieve this by ensuring the 'showUploadOption' prop evaluates to false effectively
+          // But since 'scannedCourses' is now populated, the conditional `scannedCourses.length === 0` will update automatically
+          
+      } catch (err) {
+          console.error('Scan failed:', err);
+          toast.error(err instanceof Error ? err.message : 'Failed to process image', { id: toastId });
+      } finally {
+          setIsProcessingImage(false);
+      }
+  };
+
+  const [pendingSemester, setPendingSemester] = useState<Semester | null>(null);
+
   const handleAddSemester = async (name: string, level?: number, semesterNumber?: number) => {
     try {
       setAddError(null);
-      await addSemester(name, scannedCourses, level, semesterNumber);
+      const wasManualEntry = scannedCourses.length === 0;
+      const newSemester = await addSemester(name, scannedCourses, level, semesterNumber);
       setIsAddModalOpen(false);
       setScannedCourses([]); // Clear scanned courses
+      if (wasManualEntry) {
+        // Keep the flow going: let the user fill in courses right away instead of leaving an empty semester.
+        setPendingSemester(newSemester);
+      }
     } catch (error) {
       setAddError(error instanceof Error ? error.message : 'An unknown error occurred.');
+    }
+  };
+
+  const handleBulkAddCourses = async (courses: Omit<Course, 'id'>[]) => {
+    if (!pendingSemester) return;
+    try {
+      if (courses.length > 0) {
+        await addCourses(pendingSemester.id, courses);
+      }
+      setPendingSemester(null);
+    } catch {
+      // addCourses already surfaces a toast; keep the modal open so the user can retry.
     }
   };
 
@@ -205,6 +281,15 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
+      <OnboardingWizard 
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)} // Allow dismissal
+        onComplete={handleOnboardingComplete}
+        userName={user?.user_metadata?.full_name?.split(' ')[0]} // First name attempt
+      />
+
+      <CarryoverAlert carryovers={carryovers} />
+
       {/* Settings Section */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-l-4 border-blue-500">
         <div className="flex items-center justify-between mb-4">
@@ -244,6 +329,7 @@ const Dashboard = () => {
             </div>
           </div>
           <select
+            id="grading-scale-select"
             value={gradingScale}
             onChange={(e) => setGradingScale(e.target.value as GradingScaleType)}
             className="block w-full sm:w-auto rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
@@ -315,25 +401,25 @@ const Dashboard = () => {
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">My Semesters</h2>
-        <div className="flex items-center gap-2"> 
+        <div className="relative flex items-center gap-2">
+            {showUploadSpotlight && (
+              <FeatureSpotlight
+                title="Upload results, right from here"
+                description={`Add Semester now includes the AI upload option too.\nDrop a screenshot of your result and skip typing it in.`}
+                onDismiss={dismissUploadSpotlight}
+              />
+            )}
             <button
             id="add-semester-btn"
             onClick={() => {
                 setIsAddModalOpen(true);
                 setAddError(null);
+                dismissUploadSpotlight();
             }}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md text-sm"
             >
             <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Add Semester</span>
-            </button>
-            <button
-            id="upload-results-btn"
-            onClick={() => setIsScanModalOpen(true)}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md text-sm"
-            >
-            <Upload className="w-4 h-4" />
-            <span className="hidden sm:inline">Upload Results</span>
+            Add Semester
             </button>
         </div>
       </div>
@@ -402,18 +488,27 @@ const Dashboard = () => {
           }}
           onAdd={handleAddSemester}
           submissionError={addError}
+          onScanComplete={handleFileUpload}
+          showUploadOption={scannedCourses.length === 0 && !isProcessingImage}
         />
       )}
 
-      {isScanModalOpen && (
-        <ScanResultsModal
-          onClose={() => setIsScanModalOpen(false)}
-          onScanComplete={(courses) => {
-            setScannedCourses(courses);
-            setIsScanModalOpen(false);
-            setIsAddModalOpen(true); // Open add semester modal to confirm name
-          }}
+      {pendingSemester && (
+        <BulkAddCoursesModal
+          semesterName={pendingSemester.name}
+          onClose={() => setPendingSemester(null)}
+          onAdd={handleBulkAddCourses}
         />
+      )}
+
+      {showInsufficientFunds && (
+        <div className="fixed inset-0 z-[60]"> 
+            <InsufficientFundsModal 
+                onClose={() => setShowInsufficientFunds(false)}
+                neededCredits={15}
+                currentCredits={credits}
+            />
+        </div>
       )}
     </div>
   );
