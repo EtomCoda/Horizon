@@ -106,14 +106,20 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
+      <div
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg cursor-pointer"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
         <div className="p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
-            <div 
-              className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1 group cursor-pointer"
-              onClick={() => setIsEditOpen(true)}
-            >
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1">
+              <h3
+                className="text-xl font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation(); // Editing the name shouldn't also toggle the card
+                  setIsEditOpen(true);
+                }}
+              >
                 {semester.name}
               </h3>
               <div className="flex gap-2">
@@ -135,9 +141,9 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
               </button>
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent card click from triggering
-                  setIsExpanded(!isExpanded)}
-                }
+                  e.stopPropagation(); // Avoid double-toggling via the card's own click handler
+                  setIsExpanded(!isExpanded);
+                }}
                 className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
@@ -146,7 +152,7 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
           </div>
 
           {isExpanded && (
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 space-y-3" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Courses</h4>
                 <button
