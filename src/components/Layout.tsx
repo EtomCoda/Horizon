@@ -28,7 +28,7 @@ export default function Layout() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors overflow-x-clip">
       <nav className="bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -78,64 +78,76 @@ export default function Layout() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-28">
-        <div className="mb-8 animate-fade-in flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Hello, <span className="text-blue-600 dark:text-blue-400">{user?.user_metadata.username}</span>! 👋
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              {greeting}
-            </p>
+        <div className="sticky top-20 z-30 bg-gray-50 dark:bg-gray-900 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-2">
+          <div className="mb-8 animate-fade-in flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Hello, <span className="text-blue-600 dark:text-blue-400">{user?.user_metadata.username}</span>! 👋
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
+                {greeting}
+              </p>
+            </div>
+            <button
+                id="invite-btn"
+                onClick={() => setIsInviteModalOpen(true)}
+                className="hidden sm:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                <Users className="w-5 h-5" />
+                <span className="font-medium">Invite & Earn</span>
+            </button>
           </div>
-          <button
-              id="invite-btn"
-              onClick={() => setIsInviteModalOpen(true)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              <Users className="w-5 h-5" />
-              <span className="font-medium">Invite & Earn</span>
-          </button>
+          <div className="flex items-center justify-between gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex gap-4">
+              <NavLink
+                to="/dashboard"
+                className={({ isActive: isNavLinkActive }) => `flex items-center gap-2 px-4 py-3 font-medium transition-all border-b-2 ${
+                  isNavLinkActive || (location.pathname === '/')
+                    ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400"
+                    : "text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-white"
+                }`}
+              >
+                <Home className="w-5 h-5" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </NavLink>
+              <NavLink
+                to="/calculator"
+                className={({ isActive }) => `flex items-center gap-2 px-4 py-3 font-medium transition-all border-b-2 ${
+                  isActive
+                    ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400"
+                    : "text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-white"
+                }`}
+              >
+                <Calculator className="w-5 h-5" />
+                <span className="hidden sm:inline">What-If Calculator</span>
+              </NavLink>
+              <NavLink
+                to="/analytics"
+                className={({ isActive }) => `flex items-center gap-2 px-4 py-3 font-medium transition-all border-b-2 ${
+                  isActive
+                    ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400"
+                    : "text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-white"
+                }`}
+              >
+                <BarChart2 className="w-5 h-5" />
+                <span className="hidden sm:inline">Analytics</span>
+              </NavLink>
+            </div>
+            <button
+                onClick={() => setIsInviteModalOpen(true)}
+                className="sm:hidden flex items-center justify-center p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all shadow-md flex-shrink-0"
+                title="Invite & Earn"
+                aria-label="Invite & Earn"
+              >
+                <Users className="w-5 h-5" />
+            </button>
+          </div>
         </div>
-        <div className="flex gap-4 mb-6 border-b border-gray-200 dark:border-gray-700">
-          <NavLink
-            to="/dashboard"
-            className={({ isActive: isNavLinkActive }) => `flex items-center gap-2 px-4 py-3 font-medium transition-all border-b-2 ${
-              isNavLinkActive || (location.pathname === '/')
-                ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400"
-                : "text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-white"
-            }`}
-          >
-            <Home className="w-5 h-5" />
-            <span className="hidden sm:inline">Dashboard</span>
-          </NavLink>
-          <NavLink
-            to="/calculator"
-            className={({ isActive }) => `flex items-center gap-2 px-4 py-3 font-medium transition-all border-b-2 ${
-              isActive
-                ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400"
-                : "text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-white"
-            }`}
-          >
-            <Calculator className="w-5 h-5" />
-            <span className="hidden sm:inline">What-If Calculator</span>
-          </NavLink>
-                  <NavLink
-                    to="/analytics"
-                    className={({ isActive }) => `flex items-center gap-2 px-4 py-3 font-medium transition-all border-b-2 ${
-                      isActive
-                        ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400"
-                        : "text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-white"
-                    }`}
-                  >
-                    <BarChart2 className="w-5 h-5" />
-                    <span className="hidden sm:inline">Analytics</span>
-                  </NavLink>
-                </div>
 
-                <div className="transition-all">
-                  <Outlet />
-                </div>
-              </div>
+        <div className="transition-all">
+          <Outlet />
+        </div>
+      </div>
 
               <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
