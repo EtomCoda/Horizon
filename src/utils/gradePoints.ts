@@ -75,3 +75,9 @@ export const getMaxCGPA = (scale: GradingScaleType): number => {
   const points = GRADING_SCALES[scale].map(g => g.points);
   return Math.max(...points);
 };
+
+export const isFailingGrade = (grade: Grade, scale: GradingScaleType): boolean => {
+  const scaleDef = GRADING_SCALES[scale];
+  const gradeDef = scaleDef.find(g => g.grade === grade);
+  return gradeDef ? gradeDef.points === 0 : false;
+};
