@@ -23,7 +23,7 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
   const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [courses, setCourses] = useState(semester.courses);
+  const courses = semester.courses;
 
   const gradePoints = getGradePoints(gradingScale);
   const gpa = calculateSemesterGPA(courses, gradePoints);
@@ -33,7 +33,6 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
     try {
       const newCourse = await courseService.create(semester.id, course);
       const updatedCourses = [...courses, newCourse];
-      setCourses(updatedCourses);
       const updatedSemester = {
         ...semester,
         courses: updatedCourses,
@@ -54,7 +53,6 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
     try {
       await courseService.delete(courseId);
       const updatedCourses = courses.filter(c => c.id !== courseId);
-      setCourses(updatedCourses);
       const updatedSemester = {
         ...semester,
         courses: updatedCourses,
@@ -76,7 +74,6 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
       const updatedCourses = courses.map(c =>
         c.id === updatedCourse.id ? updatedCourse : c
       );
-      setCourses(updatedCourses);
       const updatedSemester = {
         ...semester,
         courses: updatedCourses,

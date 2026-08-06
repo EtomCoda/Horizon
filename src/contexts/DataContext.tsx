@@ -8,7 +8,8 @@ interface DataContextType {
   semesters: Semester[];
   goal: GoalData | null;
   loading: boolean;
-  addSemester: (name: string, scannedCourses: Partial<Course>[], level?: number, semesterNumber?: number) => Promise<void>;
+  addSemester: (name: string, scannedCourses: Partial<Course>[], level?: number, semesterNumber?: number) => Promise<Semester>;
+  addCourses: (semesterId: string, courses: Omit<Course, 'id'>[]) => Promise<void>;
   deleteSemester: (id: string) => Promise<void>;
   updateSemester: (updatedSemester: Semester) => Promise<void>;
   saveGoal: (targetCGPA: number) => Promise<void>;
@@ -81,7 +82,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   }, [user?.id]);
 
   const addSemester = async (name: string, scannedCourses: Partial<Course>[], level?: number, semesterNumber?: number) => {
-    if (!user) return;
+    if (!user) throw new Error('Not authenticated');
     try {
       const newSemester = await semesterService.create(user.id, name, level, semesterNumber);
       if (scannedCourses.length > 0) {
@@ -97,15 +98,37 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         const updatedCourses = await courseService.getBySemesterId(newSemester.id);
         newSemester.courses = updatedCourses;
       }
-      setSemesters(prev => [...prev, newSemester]);
+      // Newest semester goes first so it surfaces above older ones, matching initial load order.
+      setSemesters(prev => [newSemester, ...prev]);
       if (scannedCourses.length > 0) {
         toast.success(`Successfully imported ${scannedCourses.length} courses!`, { duration: 2000 });
       } else {
         toast.success('Semester added successfully');
       }
+      return newSemester;
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error adding semester:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to add semester');
+      throw error;
+    }
+  };
+
+  const addCourses = async (semesterId: string, courses: Omit<Course, 'id'>[]) => {
+    if (courses.length === 0) return;
+    try {
+      const createdCourses: Course[] = [];
+      for (const course of courses) {
+        createdCourses.push(await courseService.create(semesterId, course));
+      }
+      setSemesters(prev => prev.map(s =>
+        s.id === semesterId
+          ? { ...s, courses: [...s.courses, ...createdCourses] }
+          : s
+      ));
+      toast.success(`${createdCourses.length} ${createdCourses.length === 1 ? 'course' : 'courses'} added successfully`);
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Error adding courses:', error);
+      toast.error('Failed to add courses');
       throw error;
     }
   };
@@ -166,6 +189,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     goal,
     loading,
     addSemester,
+    addCourses,
     deleteSemester,
     updateSemester,
     saveGoal,
