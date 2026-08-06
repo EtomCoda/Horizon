@@ -1,4 +1,4 @@
-import { X, Lock, Rocket, Users } from 'lucide-react';
+import { X, Lock, Rocket, Users, FileEdit } from 'lucide-react';
 import { useState } from 'react';
 import PaymentStore from './PaymentStore';
 import InviteModal from './InviteModal';
@@ -92,8 +92,26 @@ const InsufficientFundsModal = ({ onClose, neededCredits, currentCredits }: Insu
                             </div>
                         </div>
                     </button>
-                    
-                    <button 
+
+                    {/* Tertiary Action: Manual Entry (Free, no wait) — only relevant when the credit-gate was the upload/scan feature */}
+                    {neededCredits === 15 && (
+                        <button
+                            onClick={onClose}
+                            className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white rounded-xl transition-all"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="bg-gray-200 dark:bg-gray-600 p-2 rounded-lg">
+                                    <FileEdit className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                                </div>
+                                <div className="text-left">
+                                    <span className="block font-bold">Enter Manually Instead</span>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">Add courses yourself for free</span>
+                                </div>
+                            </div>
+                        </button>
+                    )}
+
+                    <button
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-sm font-medium mt-2"
                     >
