@@ -102,11 +102,11 @@ const Analytics = () => {
           return 0; 
       });
 
-      // If no structured data was found at all, we might be looking at a list that needs simple reversing
-      // But let's handle the mixed case carefully.
-      // If the sort returned 0 for everything, it means no levels.
-      // Since 'semesters' from context comes in desc order (Newest First), we should reverse it for the chart.
-      const isStructured = semesters.some(s => s.level);
+      // Only trust the level-based sort when EVERY semester has structured data.
+      // Otherwise semesters missing a level would stay unsorted (comparator returns 0),
+      // interleaving with the sorted ones and producing a jumbled chart order.
+      // Since 'semesters' from context comes in desc order (Newest First), we reverse it instead.
+      const isStructured = semesters.every(s => s.level != null);
       const finalOrder = isStructured ? sortedSemesters : [...semesters].reverse();
 
       let runningTotalPoints = 0;
@@ -115,7 +115,7 @@ const Analytics = () => {
       return finalOrder.map(s => {
           let semesterPoints = 0;
           let semesterCredits = 0;
-          
+
           s.courses.forEach(c => {
                const points = gradePoints[c.grade as keyof typeof gradePoints] || 0;
                semesterPoints += points * c.creditHours;
