@@ -2,6 +2,7 @@ import { X, Lock, Rocket, Users, FileEdit } from 'lucide-react';
 import { useState } from 'react';
 import PaymentStore from './PaymentStore';
 import InviteModal from './InviteModal';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface InsufficientFundsModalProps {
     onClose: () => void;
@@ -12,18 +13,29 @@ interface InsufficientFundsModalProps {
 const InsufficientFundsModal = ({ onClose, neededCredits, currentCredits }: InsufficientFundsModalProps) => {
     const [showPayment, setShowPayment] = useState(neededCredits === 0);
     const [showInvite, setShowInvite] = useState(false);
+    const paymentClose = () => (neededCredits === 0 ? onClose() : setShowPayment(false));
+    const dialogRef = useModalA11y<HTMLDivElement>(showPayment ? paymentClose : onClose);
 
     if (showPayment) {
         return (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in overflow-y-auto" onClick={() => neededCredits === 0 && onClose()}>
-                 <div className="relative w-full max-w-4xl my-auto" onClick={e => e.stopPropagation()}>
-                     <button 
-                         onClick={() => neededCredits === 0 ? onClose() : setShowPayment(false)}
+                 <div
+                     ref={dialogRef}
+                     role="dialog"
+                     aria-modal="true"
+                     aria-labelledby="payment-store-title"
+                     tabIndex={-1}
+                     className="relative w-full max-w-4xl my-auto"
+                     onClick={e => e.stopPropagation()}
+                 >
+                     <button
+                         onClick={paymentClose}
+                         aria-label="Close"
                          className="absolute -top-10 right-0 text-white hover:text-gray-200 z-50"
                      >
                          <X className="w-8 h-8" />
                      </button>
-                     <PaymentStore onClose={() => neededCredits === 0 ? onClose() : setShowPayment(false)} />
+                     <PaymentStore onClose={paymentClose} />
                  </div>
             </div>
         );
@@ -35,7 +47,12 @@ const InsufficientFundsModal = ({ onClose, neededCredits, currentCredits }: Insu
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in" onClick={onClose}>
-            <div 
+            <div
+                ref={dialogRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="insufficient-funds-modal-title"
+                tabIndex={-1}
                 className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative"
                 onClick={e => e.stopPropagation()}
             >
@@ -44,7 +61,7 @@ const InsufficientFundsModal = ({ onClose, neededCredits, currentCredits }: Insu
                     <div className="bg-red-50 dark:bg-red-900/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Lock className="w-8 h-8 text-red-500 dark:text-red-400" />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-2">
+                    <h2 id="insufficient-funds-modal-title" className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-2">
             {neededCredits === 0 ? 'Top Up Your Credits' : neededCredits === 15 ? 'Your Quick Upload is Ready' : 'Your Analysis is Ready'}
           </h2>
           

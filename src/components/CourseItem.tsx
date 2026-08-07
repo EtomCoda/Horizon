@@ -32,9 +32,18 @@ const CourseItem = ({ course, onDelete, onUpdate }: CourseItemProps) => {
 
   return (
     <>
-      <div 
+      <div
         className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors gap-4 cursor-pointer"
         onClick={() => setIsEditOpen(true)}
+        role="button"
+        tabIndex={0}
+        aria-label={`Edit course ${course.name}`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsEditOpen(true);
+          }
+        }}
       >
         <div className="flex-1">
           <h5 className="font-medium text-gray-900 dark:text-white">{course.name}</h5>
@@ -51,6 +60,7 @@ const CourseItem = ({ course, onDelete, onUpdate }: CourseItemProps) => {
             onClick={handleDeleteClick}
             className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
             title="Delete course"
+            aria-label={`Delete course ${course.name}`}
           >
             <Trash2 className="w-4 h-4" />
           </button>

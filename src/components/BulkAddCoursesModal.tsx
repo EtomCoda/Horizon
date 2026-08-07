@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { X, Plus, Trash2, Loader2, ListChecks } from 'lucide-react';
+import { X, Plus, Trash2, Loader2, ListChecks, AlertCircle } from 'lucide-react';
 import { Grade, Course } from '../types';
 import { GRADING_SCALES } from '../utils/gradePoints';
 import { useSettings } from '../contexts/SettingsContext';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface CourseRow {
   key: number;
@@ -22,6 +23,7 @@ const createRow = (): CourseRow => ({ key: rowKeySeq++, name: '', creditHours: '
 
 const BulkAddCoursesModal = ({ semesterName, onClose, onAdd }: BulkAddCoursesModalProps) => {
   const { gradingScale } = useSettings();
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose);
   const [rows, setRows] = useState<CourseRow[]>([createRow(), createRow(), createRow()]);
   const [rowErrors, setRowErrors] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,19 +85,27 @@ const BulkAddCoursesModal = ({ semesterName, onClose, onAdd }: BulkAddCoursesMod
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="bulk-add-courses-modal-title"
+        tabIndex={-1}
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col"
+      >
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
               <ListChecks className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Add Courses</h3>
+              <h3 id="bulk-add-courses-modal-title" className="text-xl font-semibold text-gray-900 dark:text-white">Add Courses</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">for {semesterName}</p>
             </div>
           </div>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <X className="w-6 h-6" />
@@ -120,7 +130,10 @@ const BulkAddCoursesModal = ({ semesterName, onClose, onAdd }: BulkAddCoursesMod
                     value={row.name}
                     onChange={(e) => updateRow(row.key, { name: e.target.value })}
                     placeholder={`Course ${index + 1} name`}
+                    aria-label={`Course ${index + 1} name`}
                     maxLength={50}
+                    aria-invalid={!!rowErrors[row.key]}
+                    aria-describedby={rowErrors[row.key] ? `bulk-course-row-error-${row.key}` : undefined}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all text-sm"
                   />
                 </div>
@@ -130,9 +143,12 @@ const BulkAddCoursesModal = ({ semesterName, onClose, onAdd }: BulkAddCoursesMod
                     value={row.creditHours}
                     onChange={(e) => updateRow(row.key, { creditHours: e.target.value })}
                     placeholder="Credits"
+                    aria-label={`Course ${index + 1} credit hours`}
                     min="0"
                     max="6"
                     step="0.5"
+                    aria-invalid={!!rowErrors[row.key]}
+                    aria-describedby={rowErrors[row.key] ? `bulk-course-row-error-${row.key}` : undefined}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all text-sm"
                   />
                 </div>
@@ -140,6 +156,7 @@ const BulkAddCoursesModal = ({ semesterName, onClose, onAdd }: BulkAddCoursesMod
                   <select
                     value={row.grade}
                     onChange={(e) => updateRow(row.key, { grade: e.target.value as Grade })}
+                    aria-label={`Course ${index + 1} grade`}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all text-sm cursor-pointer"
                   >
                     {GRADING_SCALES[gradingScale].map((g) => (
@@ -153,11 +170,15 @@ const BulkAddCoursesModal = ({ semesterName, onClose, onAdd }: BulkAddCoursesMod
                   disabled={rows.length === 1}
                   className="justify-self-end sm:justify-self-auto p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-30 disabled:hover:text-gray-400 transition-colors"
                   title="Remove row"
+                  aria-label={`Remove course ${index + 1}`}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
                 {rowErrors[row.key] && (
-                  <p className="sm:col-span-4 text-red-500 text-xs -mt-1">{rowErrors[row.key]}</p>
+                  <p id={`bulk-course-row-error-${row.key}`} className="sm:col-span-4 flex items-center gap-1.5 text-red-500 text-xs -mt-1">
+                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    {rowErrors[row.key]}
+                  </p>
                 )}
               </div>
             ))}

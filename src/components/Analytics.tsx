@@ -1,17 +1,19 @@
 
 import { useNavigate } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, lazy, Suspense } from 'react';
 import toast from 'react-hot-toast';
 import { BarChart, PieChart, TrendingUp, BookOpen, Award, Info, Lock } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useData } from '../contexts/DataContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { getGradePoints, getMaxCGPA } from '../utils/gradePoints';
-import InsufficientFundsModal from './InsufficientFundsModal';
 import ActionableInsights from './analytics/ActionableInsights';
 import RiskAnalysis from './analytics/RiskAnalysis';
 import GoalGapAnalysis from './analytics/GoalGapAnalysis';
 import NextSemesterForecast from './analytics/NextSemesterForecast';
+
+// Deferred: pulls in react-paystack, only needed when a user actually hits a credit wall.
+const InsufficientFundsModal = lazy(() => import('./InsufficientFundsModal'));
 
 const Analytics = () => {
   const { semesters, analyticsExpiresAt, unlockAnalytics, credits, goal } = useData();
@@ -142,14 +144,22 @@ const Analytics = () => {
 
   if (allCourses.length === 0) {
     return (
-        <div 
+        <div
             onClick={() => navigate('/dashboard', { state: { openAddSemester: true } })}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                navigate('/dashboard', { state: { openAddSemester: true } });
+              }
+            }}
             className="flex flex-col items-center justify-center p-12 bg-white dark:bg-gray-800 rounded-lg shadow-md text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
         >
             <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
                 <BarChart className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No Data Available</h3>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No Data Available</h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-md">
                 Click here to add your first semester and courses on the dashboard to unlock detailed analytics.
             </p>
@@ -175,11 +185,13 @@ const Analytics = () => {
 
   if (showInsufficientFunds) {
       return (
-          <InsufficientFundsModal 
-              onClose={() => setShowInsufficientFunds(false)}
-              neededCredits={30}
-              currentCredits={credits}
-          />
+          <Suspense fallback={null}>
+            <InsufficientFundsModal
+                onClose={() => setShowInsufficientFunds(false)}
+                neededCredits={30}
+                currentCredits={credits}
+            />
+          </Suspense>
       );
   }
 
@@ -199,15 +211,15 @@ const Analytics = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg w-full mb-8 text-left">
                    <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                       <h4 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-1">
+                       <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-1">
                            <TrendingUp className="w-4 h-4 text-blue-500"/> Performance Trends
-                       </h4>
+                       </h3>
                        <p className="text-sm text-gray-500 dark:text-gray-400">Track your CGPA evolution semester over semester.</p>
                    </div>
                    <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                       <h4 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-1">
+                       <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-1">
                            <PieChart className="w-4 h-4 text-green-500"/> Points Breakdown
-                       </h4>
+                       </h3>
                        <p className="text-sm text-gray-500 dark:text-gray-400">See exactly where your grades are coming from.</p>
                    </div>
               </div>

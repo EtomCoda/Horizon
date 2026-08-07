@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Target, TrendingUp, Info, Edit2 } from 'lucide-react';
+import { Target, TrendingUp, Info, Edit2, AlertCircle } from 'lucide-react';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface GoalCardProps {
   currentCGPA: number;
@@ -12,7 +13,8 @@ const GoalCard = ({ currentCGPA, targetCGPA, maxCGPA = 5.0, onUpdateGoal }: Goal
   const [isEditing, setIsEditing] = useState(false);
   const [newTarget, setNewTarget] = useState(targetCGPA.toString());
   const [error, setError] = useState('');
-  
+  const dialogRef = useModalA11y<HTMLDivElement>(() => setIsEditing(false), isEditing);
+
   useEffect(() => {
     setNewTarget(targetCGPA.toString());
   }, [targetCGPA]);
@@ -63,11 +65,20 @@ const GoalCard = ({ currentCGPA, targetCGPA, maxCGPA = 5.0, onUpdateGoal }: Goal
 
       {isEditing ? (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setIsEditing(false)}>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="goal-card-edit-title"
+            tabIndex={-1}
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <label id="goal-card-edit-title" htmlFor="goal-card-target-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Edit Target CGPA
             </label>
             <input
+              id="goal-card-target-input"
               type="number"
               value={newTarget}
               onChange={(e) => {
@@ -77,10 +88,16 @@ const GoalCard = ({ currentCGPA, targetCGPA, maxCGPA = 5.0, onUpdateGoal }: Goal
               min="0"
               max={maxCGPA}
               step="0.01"
+              aria-invalid={!!error}
+              aria-describedby={error ? 'goal-card-target-error' : undefined}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all mb-2"
-              autoFocus
             />
-            {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+            {error && (
+              <p id="goal-card-target-error" className="flex items-center gap-1.5 text-red-500 text-sm mb-3">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                {error}
+              </p>
+            )}
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => {

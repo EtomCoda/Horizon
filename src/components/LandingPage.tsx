@@ -33,6 +33,7 @@ const LandingPage = () => {
         </div>
       </nav>
 
+      <main>
       {/* Hero Section */}
       <div className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
@@ -107,9 +108,10 @@ const LandingPage = () => {
           </div>
         </div>
       </div>
+      </main>
 
       {/* Trust/Footer Section */}
-      <div className="bg-gray-900 text-white py-12 border-t border-gray-800">
+      <footer className="bg-gray-900 text-white py-12 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex flex-col md:flex-row items-center gap-4">
              <div className="flex items-center gap-2">
@@ -123,11 +125,11 @@ const LandingPage = () => {
                 <a href="mailto:support@yourhorizon.me" className="hover:text-white transition-colors">Support</a>
              </div>
           </div>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-400 text-sm">
             © {new Date().getFullYear()} Horizon by EtomCoda. All rights reserved.
           </p>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };

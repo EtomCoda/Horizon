@@ -38,14 +38,15 @@ const PaymentStore = ({ onClose }: PaymentStoreProps) => {
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl mx-auto">
             <div className="text-center mb-10 relative">
                 {onClose && (
-                    <button 
+                    <button
                         onClick={onClose}
+                        aria-label="Close"
                         className="absolute -top-4 -right-4 bg-gray-100 dark:bg-gray-700 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                     >
                         <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                     </button>
                 )}
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
+                <h2 id="payment-store-title" className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
                      Top Up Your Credits
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 max-w-lg mx-auto">

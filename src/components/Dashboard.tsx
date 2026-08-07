@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Plus, Target, TrendingUp, BookOpen, Settings, Info, Rocket } from 'lucide-react';
 import { calculateCGPA, getTotalCredits } from '../utils/gpaCalculations';
@@ -10,13 +10,15 @@ import CarryoverAlert from './CarryoverAlert';
 import GoalCard from './GoalCard';
 import AddSemesterModal from './AddSemesterModal';
 import BulkAddCoursesModal from './BulkAddCoursesModal';
-import InsufficientFundsModal from './InsufficientFundsModal';
 import { Course, Semester } from '../types';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import OnboardingWizard from './OnboardingWizard';
 import FeatureSpotlight from './FeatureSpotlight';
 import { supabase } from '../lib/supabase';
+
+// Deferred: pulls in react-paystack, only needed when a user actually hits a credit wall.
+const InsufficientFundsModal = lazy(() => import('./InsufficientFundsModal'));
 
 const Dashboard = () => {
   const { gradingScale, setGradingScale } = useSettings();
@@ -328,6 +330,9 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
+          <label htmlFor="grading-scale-select" className="sr-only">
+            Grading scale
+          </label>
           <select
             id="grading-scale-select"
             value={gradingScale}
@@ -502,12 +507,14 @@ const Dashboard = () => {
       )}
 
       {showInsufficientFunds && (
-        <div className="fixed inset-0 z-[60]"> 
-            <InsufficientFundsModal 
+        <div className="fixed inset-0 z-[60]">
+          <Suspense fallback={null}>
+            <InsufficientFundsModal
                 onClose={() => setShowInsufficientFunds(false)}
                 neededCredits={15}
                 currentCredits={credits}
             />
+          </Suspense>
         </div>
       )}
     </div>

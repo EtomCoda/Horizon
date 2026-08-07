@@ -161,7 +161,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex flex-col lg:flex-row items-center justify-center p-4 relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex flex-col lg:flex-row items-center justify-center p-4 relative overflow-hidden">
       {/* Left Side */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center text-center p-8 lg:p-16">
         <h1
@@ -293,6 +293,7 @@ const AuthPage = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                     title={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -409,7 +410,7 @@ const AuthPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

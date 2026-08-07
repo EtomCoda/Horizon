@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AlertTriangle, Trash2, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface DeleteAccountModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ export default function DeleteAccountModal({ isOpen, onClose, onSuccess }: Delet
   const { deleteAccount } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState('');
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose, isOpen);
 
   if (!isOpen) return null;
 
@@ -35,18 +37,26 @@ export default function DeleteAccountModal({ isOpen, onClose, onSuccess }: Delet
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all animate-scale-in border border-red-100 dark:border-red-900/50">
-        
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-account-modal-title"
+        tabIndex={-1}
+        className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all animate-scale-in border border-red-100 dark:border-red-900/50"
+      >
+
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 bg-red-50/50 dark:bg-red-900/10">
           <div className="flex items-center gap-2">
             <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-lg text-red-600 dark:text-red-400">
                <AlertTriangle className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-bold text-red-900 dark:text-red-100">Delete Account?</h3>
+            <h3 id="delete-account-modal-title" className="text-lg font-bold text-red-900 dark:text-red-100">Delete Account?</h3>
           </div>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -70,16 +80,16 @@ export default function DeleteAccountModal({ isOpen, onClose, onSuccess }: Delet
             </div>
 
             <div className="pt-2">
-                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                <label htmlFor="delete-account-confirm" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
                     To confirm, type "DELETE" below
                 </label>
                 <input
+                    id="delete-account-confirm"
                     type="text"
                     value={confirmDelete}
                     onChange={(e) => setConfirmDelete(e.target.value)}
                     className="block w-full rounded-lg border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10 text-gray-900 dark:text-white placeholder-red-300 dark:placeholder-red-800 focus:border-red-500 focus:ring-red-500 sm:text-sm p-3 transition-colors outline-none"
                     placeholder="DELETE"
-                    autoFocus
                 />
             </div>
 

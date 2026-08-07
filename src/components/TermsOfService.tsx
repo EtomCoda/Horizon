@@ -3,7 +3,7 @@ import { ArrowLeft, FileText } from 'lucide-react';
 
 const TermsOfService = () => {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Link to="/" className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline mb-8">
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -94,7 +94,7 @@ const TermsOfService = () => {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

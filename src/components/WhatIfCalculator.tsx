@@ -239,6 +239,7 @@ const WhatIfCalculator = ({ initialCGPA = 0, initialCredits = 0 }: WhatIfCalcula
                     onClick={() => removeCourse(course.id)}
                     className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                     title="Remove course"
+                    aria-label="Remove course"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

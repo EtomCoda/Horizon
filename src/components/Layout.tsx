@@ -4,10 +4,12 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { getMotivationalGreeting } from '../utils/greetings';
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import InviteModal from './InviteModal';
 import SettingsModal from './SettingsModal';
-import InsufficientFundsModal from './InsufficientFundsModal';
+
+// Deferred: pulls in react-paystack, only needed when a user actually opens the top-up flow.
+const InsufficientFundsModal = lazy(() => import('./InsufficientFundsModal'));
 
 export default function Layout() {
   const { theme, toggleTheme } = useTheme();
@@ -34,15 +36,17 @@ export default function Layout() {
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-3">
               <img src="/horizon.webp" alt="Horizon Logo" width="64" height="64" loading="lazy" className="w-16 h-16 object-contain" />
-              <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-green-500 hidden sm:block">
+              {/* Decorative brand wordmark, not a heading — the page's h1 is the greeting below */}
+              <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-green-500 hidden sm:block">
                 Horizon
-              </h1>
+              </span>
             </div>
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setIsPaymentOpen(true)}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-full text-sm font-medium hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors"
                 title="Buy Credits"
+                aria-label={`Buy credits — current balance ${credits}`}
               >
                 <Coins className="w-4 h-4" />
                 <span>{credits}</span>
@@ -51,6 +55,7 @@ export default function Layout() {
                 onClick={toggleTheme}
                 className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+                aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
               >
                 {theme === "light" ? (
                   <Moon className="w-5 h-5 text-blue-800" />
@@ -62,6 +67,7 @@ export default function Layout() {
                 onClick={() => setIsSettingsOpen(true)}
                 className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-600 dark:text-gray-400"
                 title="Settings"
+                aria-label="Settings"
               >
                 <Settings className="w-5 h-5" />
               </button>
@@ -69,6 +75,7 @@ export default function Layout() {
                 onClick={() => signOut()}
                 className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                 title="Sign out"
+                aria-label="Sign out"
               >
                 <LogOut className="w-5 h-5" />
               </button>
@@ -144,9 +151,9 @@ export default function Layout() {
           </div>
         </div>
 
-        <div className="transition-all">
+        <main className="transition-all">
           <Outlet />
-        </div>
+        </main>
       </div>
 
               <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12">
@@ -180,11 +187,13 @@ export default function Layout() {
                 <SettingsModal onClose={() => setIsSettingsOpen(false)} />
               )}
               {isPaymentOpen && (
-                <InsufficientFundsModal 
-                  onClose={() => setIsPaymentOpen(false)} 
-                  neededCredits={0}
-                  currentCredits={credits}
-                />
+                <Suspense fallback={null}>
+                  <InsufficientFundsModal
+                    onClose={() => setIsPaymentOpen(false)}
+                    neededCredits={0}
+                    currentCredits={credits}
+                  />
+                </Suspense>
               )}
             </div>
           );

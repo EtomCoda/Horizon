@@ -109,6 +109,16 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
       <div
         className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
+        role="button"
+        tabIndex={0}
+        aria-expanded={isExpanded}
+        aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${semester.name}`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsExpanded(!isExpanded);
+          }
+        }}
       >
         <div className="p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
@@ -118,6 +128,16 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
                 onClick={(e) => {
                   e.stopPropagation(); // Editing the name shouldn't also toggle the card
                   setIsEditOpen(true);
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Edit semester name: ${semester.name}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsEditOpen(true);
+                  }
                 }}
               >
                 {semester.name}
@@ -136,6 +156,7 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
                 onClick={handleDeleteClick}
                 className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                 title="Delete semester"
+                aria-label={`Delete semester ${semester.name}`}
               >
                 <Trash2 className="w-5 h-5" />
               </button>
@@ -145,6 +166,8 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
                   setIsExpanded(!isExpanded);
                 }}
                 className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                aria-expanded={isExpanded}
+                aria-label={isExpanded ? 'Collapse semester details' : 'Expand semester details'}
               >
                 {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
               </button>

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { X, Loader2, Shield, Upload, FileText, FileImage, AlertCircle } from 'lucide-react';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface AddSemesterModalProps {
   onClose: () => void;
@@ -16,11 +17,12 @@ const AddSemesterModal = ({
   onScanComplete,
   showUploadOption = false 
 }: AddSemesterModalProps) => {
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose);
   const [level, setLevel] = useState<number>(100);
   const [term, setTerm] = useState<number>(1);
   const [name, setName] = useState('100 Level - 1st Semester');
   const [isManualName, setIsManualName] = useState(false);
-  
+
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -70,7 +72,7 @@ const AddSemesterModal = ({
     try {
       // Pass level and term as structured data
       await onAdd(name.trim(), level, term);
-    } catch (err) {
+    } catch {
       // Error handling by parent
     } finally {
       setIsSubmitting(false);
@@ -145,11 +147,19 @@ const AddSemesterModal = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full transition-all duration-300 ${showUploadOption ? 'max-w-4xl' : 'max-w-md'}`}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-semester-modal-title"
+        tabIndex={-1}
+        className={`bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full transition-all duration-300 ${showUploadOption ? 'max-w-4xl' : 'max-w-md'}`}
+      >
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Add Your Results</h3>
+          <h3 id="add-semester-modal-title" className="text-xl font-semibold text-gray-900 dark:text-white">Add Your Results</h3>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <X className="w-6 h-6" />
@@ -171,10 +181,11 @@ const AddSemesterModal = ({
              <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-2 gap-4 mb-4">
                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="add-semester-level" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Level
                     </label>
                     <select
+                      id="add-semester-level"
                       value={level}
                       onChange={(e) => handleLevelChange(Number(e.target.value))}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer"
@@ -185,10 +196,11 @@ const AddSemesterModal = ({
                     </select>
                  </div>
                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="add-semester-term" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Semester
                     </label>
                     <select
+                      id="add-semester-term"
                       value={term}
                       onChange={(e) => handleTermChange(Number(e.target.value))}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer"
@@ -200,19 +212,27 @@ const AddSemesterModal = ({
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label htmlFor="add-semester-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Semester Name
                 </label>
                 <input
+                  id="add-semester-name"
                   type="text"
                   value={name}
                   onChange={handleNameChange}
                   placeholder="e.g., First Semester 2024"
                   maxLength={40}
+                  aria-invalid={!!(error || submissionError)}
+                  aria-describedby={error || submissionError ? 'add-semester-name-error' : undefined}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
                 />
-                {error && <div className="flex items-center gap-1.5 mt-2 text-red-500 text-sm"><AlertCircle className="w-4 h-4"/>{error}</div>}
-                {submissionError && <p className="text-red-500 text-sm mt-1">{submissionError}</p>}
+                {error && <div id="add-semester-name-error" className="flex items-center gap-1.5 mt-2 text-red-500 text-sm"><AlertCircle className="w-4 h-4"/>{error}</div>}
+                {submissionError && (
+                  <div id="add-semester-name-error" className="flex items-center gap-1.5 mt-2 text-red-500 text-sm">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    {submissionError}
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3">
@@ -256,7 +276,7 @@ const AddSemesterModal = ({
                 <div className="flex-1 relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 mb-4 min-h-[220px] bg-gray-50 dark:bg-gray-900/30">
                   <img
                     src={previewUrl}
-                    alt="Result preview"
+                    alt="Preview of the uploaded result screenshot, ready to scan"
                     className="w-full h-full max-h-[320px] object-contain"
                   />
                   <button
@@ -264,6 +284,7 @@ const AddSemesterModal = ({
                     onClick={handleClearFile}
                     className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-1.5 rounded-full transition-colors"
                     title="Remove image"
+                    aria-label="Remove image"
                   >
                     <X className="w-4 h-4" />
                   </button>

@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useSettings } from '../contexts/SettingsContext';
 import { GradingScaleType, GRADING_SCALES } from '../utils/gradePoints';
 import DeleteAccountModal from './DeleteAccountModal';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface SettingsModalProps {
   onClose: () => void;
@@ -16,6 +17,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose);
 
   const handleReplayTutorial = () => {
     if (user) {
@@ -28,17 +30,25 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-xl transform transition-all animate-scale-in">
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="settings-modal-title"
+          tabIndex={-1}
+          className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-xl transform transition-all animate-scale-in"
+        >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
             <div className="flex items-center gap-3">
               <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
                 <SettingsIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Settings</h2>
+              <h2 id="settings-modal-title" className="text-xl font-bold text-gray-900 dark:text-white">Settings</h2>
             </div>
             <button
               onClick={onClose}
+              aria-label="Close"
               className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
             >
               <X className="w-6 h-6" />

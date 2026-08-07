@@ -1,4 +1,5 @@
 import { X, AlertTriangle } from 'lucide-react';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -9,24 +10,35 @@ interface ConfirmationModalProps {
 }
 
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }: ConfirmationModalProps) => {
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose, isOpen);
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmation-modal-title"
+        tabIndex={-1}
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full animate-fade-in-up"
+        style={{ animationDelay: '0.1s' }}
+      >
         <div className="p-6">
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
               <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h3>
+              <h3 id="confirmation-modal-title" className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h3>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
                 {message}
               </p>
             </div>
             <button
               onClick={onClose}
+              aria-label="Close"
               className="-mt-2 -mr-2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
               <X className="w-6 h-6" />

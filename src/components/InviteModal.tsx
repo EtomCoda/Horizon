@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, Copy, Check, Users, Gift, Share2, Trophy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useData } from '../contexts/DataContext';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface InviteModalProps {
   onClose: () => void;
@@ -9,6 +10,7 @@ interface InviteModalProps {
 
 const InviteModal = ({ onClose }: InviteModalProps) => {
   const { referralCode, referralCount } = useData();
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose);
   const [copied, setCopied] = useState(false);
   
   const MAX_REFERRALS = 10;
@@ -49,7 +51,12 @@ const InviteModal = ({ onClose }: InviteModalProps) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in" onClick={onClose}>
-      <div 
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="invite-modal-title"
+        tabIndex={-1}
         className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative"
         onClick={e => e.stopPropagation()}
       >
@@ -59,8 +66,9 @@ const InviteModal = ({ onClose }: InviteModalProps) => {
             <div className="bg-white/20 backdrop-blur-md p-4 rounded-full shadow-lg relative z-10">
                 {isMaxed ? <Trophy className="w-10 h-10 text-yellow-300" /> : <Gift className="w-10 h-10 text-white" />}
             </div>
-            <button 
+            <button
                 onClick={onClose}
+                aria-label="Close"
                 className="absolute top-4 right-4 bg-black/20 hover:bg-black/40 text-white p-1 rounded-full transition-colors"
             >
                 <X className="w-5 h-5" />
@@ -70,7 +78,7 @@ const InviteModal = ({ onClose }: InviteModalProps) => {
         <div className="p-6 text-center">
             {isMaxed ? (
                 <>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    <h2 id="invite-modal-title" className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                          🎉 Max Level Reached!
                     </h2>
                     <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -84,7 +92,7 @@ const InviteModal = ({ onClose }: InviteModalProps) => {
                 </>
             ) : (
                 <>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    <h2 id="invite-modal-title" className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                         Invite Friends, Get Credits
                     </h2>
                     <p className="text-gray-600 dark:text-gray-300 mb-4">

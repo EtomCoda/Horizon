@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, AlertCircle } from 'lucide-react';
 import { Grade, Course } from '../types';
 import { GRADING_SCALES } from '../utils/gradePoints';
 import { useSettings } from '../contexts/SettingsContext';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface EditCourseModalProps {
   course: Course;
@@ -12,6 +13,7 @@ interface EditCourseModalProps {
 
 const EditCourseModal = ({ course, onClose, onSave }: EditCourseModalProps) => {
   const { gradingScale } = useSettings();
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose);
   const [name, setName] = useState(course.name);
   const [creditHours, setCreditHours] = useState(course.creditHours.toString());
   const [grade, setGrade] = useState<Grade>(course.grade);
@@ -47,11 +49,19 @@ const EditCourseModal = ({ course, onClose, onSave }: EditCourseModalProps) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-course-modal-title"
+        tabIndex={-1}
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full"
+      >
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Edit Course</h3>
+          <h3 id="edit-course-modal-title" className="text-xl font-semibold text-gray-900 dark:text-white">Edit Course</h3>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <X className="w-6 h-6" />
@@ -60,10 +70,11 @@ const EditCourseModal = ({ course, onClose, onSave }: EditCourseModalProps) => {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="edit-course-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Course Name
             </label>
             <input
+              id="edit-course-name"
               type="text"
               value={name}
               onChange={(e) => {
@@ -71,16 +82,24 @@ const EditCourseModal = ({ course, onClose, onSave }: EditCourseModalProps) => {
                 setErrors({ ...errors, name: undefined });
               }}
               placeholder="e.g., Introduction to Artificial Intelligence"
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? 'edit-course-name-error' : undefined}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
             />
-            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+            {errors.name && (
+              <p id="edit-course-name-error" className="flex items-center gap-1.5 text-red-500 text-sm mt-1">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                {errors.name}
+              </p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="edit-course-credits" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Credit Hours
             </label>
             <input
+              id="edit-course-credits"
               type="number"
               value={creditHours}
               onChange={(e) => {
@@ -91,16 +110,24 @@ const EditCourseModal = ({ course, onClose, onSave }: EditCourseModalProps) => {
               min="0"
               max="6"
               step="0.5"
+              aria-invalid={!!errors.creditHours}
+              aria-describedby={errors.creditHours ? 'edit-course-credits-error' : undefined}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
             />
-            {errors.creditHours && <p className="text-red-500 text-sm mt-1">{errors.creditHours}</p>}
+            {errors.creditHours && (
+              <p id="edit-course-credits-error" className="flex items-center gap-1.5 text-red-500 text-sm mt-1">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                {errors.creditHours}
+              </p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="edit-course-grade" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Grade
             </label>
             <select
+              id="edit-course-grade"
               value={grade}
               onChange={(e) => setGrade(e.target.value as Grade)}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
