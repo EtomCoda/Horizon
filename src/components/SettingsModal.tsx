@@ -36,10 +36,10 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
           aria-modal="true"
           aria-labelledby="settings-modal-title"
           tabIndex={-1}
-          className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-xl transform transition-all animate-scale-in"
+          className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-xl transform transition-all animate-scale-in flex flex-col"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 shrink-0">
             <div className="flex items-center gap-3">
               <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
                 <SettingsIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -56,7 +56,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-gray-200 dark:border-gray-700">
+          <div className="flex border-b border-gray-200 dark:border-gray-700 shrink-0">
             <button
               onClick={() => setActiveTab('general')}
               className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
@@ -80,7 +80,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-6 overflow-y-auto">
             {activeTab === 'general' ? (
               <div className="space-y-6">
                 <div>
