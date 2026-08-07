@@ -17,11 +17,11 @@ const FeatureSpotlight = ({ title, description, onDismiss, align = 'right' }: Fe
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -8, scale: 0.96 }}
         transition={{ duration: 0.2 }}
-        className={`absolute top-full mt-3 z-40 w-72 ${align === 'right' ? 'right-0' : 'left-0'}`}
+        className={`absolute top-full mt-3 z-40 w-[calc(100vw-2rem)] max-w-72 left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-auto sm:w-72 ${align === 'right' ? 'sm:right-0' : 'sm:left-0'}`}
       >
         {/* Arrow */}
         <div
-          className={`absolute -top-1.5 w-3 h-3 bg-blue-600 rotate-45 ${align === 'right' ? 'right-6' : 'left-6'}`}
+          className={`absolute -top-1.5 w-3 h-3 bg-blue-600 rotate-45 left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-auto ${align === 'right' ? 'sm:right-6' : 'sm:left-6'}`}
         />
 
         <div className="relative bg-blue-600 text-white rounded-xl shadow-xl p-4">
