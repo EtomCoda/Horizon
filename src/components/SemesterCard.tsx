@@ -28,6 +28,7 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
   const gradePoints = getGradePoints(gradingScale);
   const gpa = calculateSemesterGPA(courses, gradePoints);
   const totalCredits = courses.reduce((sum, course) => sum + course.creditHours, 0);
+  const totalCourses = courses.length;
 
   const handleAddCourse = async (course: Omit<Course, 'id'>) => {
     try {
@@ -148,6 +149,9 @@ const SemesterCard = ({ semester, onDelete, onUpdate }: SemesterCardProps) => {
                 </span>
                 <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium">
                   {totalCredits} Credits
+                </span>
+                <span className="px-3 py-1 bg-blue-100  dark:bg-blue-900/90 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
+                  {totalCourses} Courses
                 </span>
               </div>
             </div>
