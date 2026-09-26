@@ -7,6 +7,7 @@ import { getGradePoints, GradingScaleType, GRADING_SCALES, getMaxCGPA, isFailing
 import { useData } from '../contexts/DataContext';
 import SemesterCard from './SemesterCard';
 import CarryoverAlert from './CarryoverAlert';
+import CgpaMismatchGuide from './CgpaMismatchGuide';
 import GoalCard from './GoalCard';
 import AddSemesterModal from './AddSemesterModal';
 import BulkAddCoursesModal from './BulkAddCoursesModal';
@@ -37,6 +38,7 @@ const Dashboard = () => {
   const location = useLocation();
   // ... existing hooks ...
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isMismatchGuideOpen, setIsMismatchGuideOpen] = useState(false);
   const [scannedCourses, setScannedCourses] = useState<Partial<Course>[]>([]);
   const [addError, setAddError] = useState<string | null>(null);
 
@@ -356,6 +358,16 @@ const Dashboard = () => {
               <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
                 {cgpa.toFixed(2)}
               </p>
+              {semesters.length > 0 && (
+                
+                <button
+                  onClick={() => setIsMismatchGuideOpen(true)}
+                  className="mt-1 flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                  Doesn't match your portal?
+                </button>
+              )}
             </div>
             <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
               <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -483,6 +495,14 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {isMismatchGuideOpen && (
+        <CgpaMismatchGuide
+          semesters={semesters}
+          gradePoints={gradePoints}
+          onClose={() => setIsMismatchGuideOpen(false)}
+        />
       )}
 
       {isAddModalOpen && (
